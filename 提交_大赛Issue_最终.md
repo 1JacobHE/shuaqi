@@ -71,6 +71,11 @@
 
 以下截图均为 **2026-11-24 在线 Demo 真实运行**时截取（非设计稿）。
 
+**演示视频（57 秒，线上真实运行）**：<https://github.com/1JacobHE/shuaqi/blob/main/demo/shuaqi-demo.mp4>
+
+从填条件、一次搜完 100 个候选目的地，到方块上的价格逐个从「去 ¥」变成「往返 ¥」，再到点开昆明看两程明细与百炼生成的行程——全部是线上站点的真实画面，没有合成镜头。
+
+
 **首屏 —— 只填出发城市、日期、天数**
 
 ![首屏](https://raw.githubusercontent.com/1JacobHE/shuaqi/main/%E6%8F%90%E4%BA%A4%E6%88%AA%E5%9B%BE/01_%E9%A6%96%E5%B1%8F.png)
