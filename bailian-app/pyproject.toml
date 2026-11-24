@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flytrip-bailian-app"
+version = "0.1.0"
+description = "百炼高代码应用：飞猪 MCP 工具 + qwen 行程编排"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi==0.115.0",
+    "uvicorn==0.30.6",
+    "requests==2.32.3",
+]
+
+# 入口文件必须叫 main.py，百炼靠它启动服务；core.py 是业务核心
+[tool.setuptools]
+py-modules = ["main", "core"]

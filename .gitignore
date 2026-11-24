@@ -1,0 +1,44 @@
+# 临时与调试产物
+.tmp/
+.tmpdata/
+*.log
+
+# 内部文档（参赛策略、风控复盘、内部沟通），不进公开仓库
+_internal/
+
+# 查询缓存：本机跑一次就会重新生成，20MB 的体积不适合进仓库
+data/rail-cache.json
+data/flight-cache.json
+
+# 运行时状态（熔断冷却、单日调用账本）：每台机器自己生成，不该跟着仓库走，
+# 否则克隆下来的人一启动就处在 24 小时冷却里 / 或者带着别人的当日额度
+data/risk-state.json
+data/flyai-day.json
+
+# 依赖与编译产物
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+*.whl
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 密钥：绝对不进仓库（提交模板明确要求「不要提交 API Key」）
+#   ~/.flyai/config.json      飞猪 flyai Key
+#   data/flyai-keys.json      托管环境用的同一份 Key 池（云端没有用户 HOME，
+#                             只能放项目内；它只在服务端读，不在 public/ 下）
+#   ~/.bailian/config.json    阿里云百炼 DASHSCOPE_API_KEY
+data/flyai-keys.json
+data/bailian-key.json
+# 若你为了本地调试临时把 Key 写进下面的文件，提交前请清空
+.env
+.env.*
+config.local.json

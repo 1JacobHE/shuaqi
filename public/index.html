@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>耍起 · 随心出发，即刻耍起</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --panel:#fff; --panel2:#fbfbfc; --line:#e6e8ec; --line2:#eef0f3;
+    --tx:#171a21; --tx2:#5b6270; --tx3:#8b93a1;
+    --brand:#ff6a00; --brand2:#ffa02e; --soft:#fff4ea;
+    --ok:#0a8f4d; --ok-soft:#e9f7ef;
+    --warn:#b25e00; --warn-soft:#fff5e6;
+    --red:#c0392b; --red-soft:#fdf1ef;
+    --blue:#2563eb; --blue-soft:#eef4ff;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px -14px rgba(16,24,40,.16);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 80px}
+
+  header.top{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+  .logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:17px;box-shadow:0 7px 16px -7px rgba(255,106,0,.85)}
+  .brandname{font-weight:800;letter-spacing:.6px;font-size:19px}
+  .tagline{display:inline-flex;align-items:center;gap:6px;margin-left:auto;color:var(--tx2);font-size:12px;
+    background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+  .tagline .live{width:6px;height:6px;border-radius:50%;background:#12b76a;box-shadow:0 0 0 3px rgba(18,183,106,.16)}
+
+  /* 首屏：slogan 与标题做成一组，不只是「一行灰字」。
+     底色用多层 background 画光斑（不用伪元素 + overflow:hidden），
+     否则会把城市下拉菜单一起裁掉。 */
+  .hero{position:relative;padding:22px 22px 20px;border-radius:20px;border:1px solid #f3e2d1;
+    background:
+      radial-gradient(430px 430px at 88% -10%, rgba(255,106,0,.15), rgba(255,160,46,0) 70%),
+      radial-gradient(380px 380px at 0% 116%, rgba(255,160,46,.14), rgba(255,106,0,0) 70%),
+      linear-gradient(152deg,#fff 0%,#fffaf5 52%,#fff2e3 100%);
+    box-shadow:0 1px 2px rgba(16,24,40,.04),0 20px 44px -30px rgba(255,106,0,.42)}
+  .claim{display:inline-flex;align-items:center;gap:8px;padding:4px 13px 4px 9px;border-radius:999px;
+    background:linear-gradient(135deg,#fff3e6,#ffe8d0);border:1px solid #ffd8b1;color:#b24a00;
+    font-size:12px;font-weight:700;letter-spacing:1.6px}
+  .claim .dot{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 0 0 3px rgba(255,106,0,.16)}
+  .hero h1{margin:11px 0 7px;font-size:33px;line-height:1.26;letter-spacing:-.9px;font-weight:800}
+  .hero h1 .hl{background:linear-gradient(118deg,var(--brand),#ff8a00 48%,var(--brand2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;padding:0 1px}
+  /* 右侧航线装饰：只在宽屏出现，窄屏会压到输入框 */
+  .hrout{position:absolute;right:22px;top:20px;width:300px;height:110px;pointer-events:none;opacity:.9}
+  @media(max-width:1180px){.hrout{display:none}}
+  .hero p.sub{margin:0 0 15px;color:var(--tx2);font-size:13.5px;max-width:760px}
+  @media(max-width:680px){
+    .hero{padding:18px 16px;border-radius:16px}
+    .hero h1{font-size:24px;margin:9px 0 6px}
+    .claim{font-size:11px;letter-spacing:1px;padding:3px 11px 3px 8px}
+    .tagline{display:none}
+    .go.stop{padding:9px 16px}
+  }
+  .row2{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-top:4px}
+  .lab{color:var(--tx3);font-size:12.5px;margin-right:1px;white-space:nowrap}
+  .brk{flex:1 0 100%;height:0}
+  .fld{display:inline-flex;align-items:center;gap:6px}
+  /* 这两个是 inline-flex 包裹层，默认 align-items:stretch 会把内部的 .lab 拉满高度，
+     文字贴在盒子上沿 —— 看上去就比旁边「出发日期」那几个字高了一截。 */
+  #backDateWrap,#daysWrap{align-items:center;gap:6px}
+  /* 返程日期还没开售的小字提示：不是错误（照样能搜，返程给参考班次），所以用琥珀色而不是红色 */
+  .bhint{font-size:11px;color:#b45309;background:#fffaf2;border:1px solid #ffe2bf;border-radius:999px;
+    padding:2px 8px;white-space:nowrap;cursor:help}
+  select,input.mini{border:1px solid var(--line);border-radius:9px;padding:6px 10px;font:inherit;font-size:13px;outline:none;background:#fff;color:var(--tx)}
+  select:focus,input.mini:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--soft)}
+  select.sel-tp{min-width:132px;font-weight:600}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;transition:.15s;color:#374151;user-select:none}
+  .chip:hover{border-color:var(--brand);color:var(--brand)}
+  .chip.on{background:var(--soft);border-color:var(--brand);color:var(--brand);font-weight:600}
+
+  /* 搜索按钮：这是唯一的取数入口 —— 点之前不发任何请求 */
+  .go{border:none;border-radius:10px;padding:9px 26px;font:inherit;font-size:14px;font-weight:700;color:#fff;cursor:pointer;
+    background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 6px 16px -8px rgba(255,106,0,.9);margin-left:6px}
+  .go:hover{filter:brightness(1.04)}
+  .go:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+  /* 扫描中：同一个按钮变成「停止」，一眼能看出现在还能中断 */
+  .go.stop{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    background:#fff;color:#b3261e;border:1px solid #f2cdc7;box-shadow:0 5px 14px -10px rgba(179,38,30,.65)}
+  .go.stop:hover{background:#fdf4f2;filter:none}
+  .go .sq{width:9px;height:9px;border-radius:2px;background:#b3261e;flex:0 0 auto}
+
+  .err{margin-top:14px;padding:12px 14px;background:var(--red-soft);border:1px solid #f3c8c2;border-radius:12px;color:#a3312a;font-size:13px;display:none}
+  .err.on{display:block}
+  /* 浮层提示：不进文档流，避免扫描结束时突然把列表顶下去 */
+  .toast{position:fixed;left:50%;bottom:26px;z-index:200;margin:0;padding:9px 17px;border-radius:999px;
+    background:rgba(23,26,33,.92);color:#fff;font-size:12.5px;line-height:1.6;max-width:78vw;text-align:center;
+    box-shadow:0 12px 28px -12px rgba(16,24,40,.65);opacity:0;transform:translateX(-50%) translateY(10px);
+    pointer-events:none;transition:opacity .2s,transform .2s}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  .hint{margin:10px 0 0;padding:9px 13px;background:#f6f8fb;border:1px solid var(--line);border-left:3px solid var(--brand);
+    border-radius:9px;font-size:12.5px;color:var(--tx2);line-height:1.75;display:none}
+  .hint.on{display:block}
+  .hint b{color:var(--tx)}
+  .hint code{background:#eef2f7;border-radius:4px;padding:0 4px;font-size:12px}
+  .hint .hrow{display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap}
+  .hint .hrow .u{font-size:12px;color:var(--tx3)}
+  .hint .warnline{color:#a3312a;font-weight:600;line-height:1.7}
+
+  .bar{height:5px;background:var(--line2);border-radius:99px;overflow:hidden;margin:14px 0 0;display:none}
+  .bar.on{display:block}
+  .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .25s}
+
+  .tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0 12px}
+  .seg{display:flex;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{border:none;background:transparent;padding:7px 13px;font:inherit;font-size:13px;color:var(--tx2);cursor:pointer}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button.on{background:var(--soft);color:var(--brand);font-weight:600}
+  .sp{flex:1}
+  .cov{font-size:12.5px;color:var(--tx2);background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-variant-numeric:tabular-nums}
+  .cov b{color:var(--ok)}
+  .mini{border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--tx)}
+  .mini:hover{border-color:var(--brand);color:var(--brand)}
+  .mini:disabled{opacity:.55;cursor:not-allowed}
+  .more{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 0 4px;font-size:12.5px}
+  .cnt{font-size:12.5px;color:var(--tx3);font-variant-numeric:tabular-nums}
+  /* 往返批量补查的进度胶囊：查的是返程班次与票价，要让用户知道「还在补、别急着点开」 */
+  .backprog{display:none;align-items:center;gap:7px;font-size:12.5px;color:#92400e;
+    background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:5px 10px;font-variant-numeric:tabular-nums}
+  .backprog.on{display:inline-flex}
+  .backprog .spin{width:9px;height:9px;border-radius:50%;border:2px solid #fcd34d;border-top-color:#d97706;
+    animation:bpspin .8s linear infinite;flex:none}
+  .backprog.done{color:#065f46;background:#ecfdf5;border-color:#6ee7b7}
+  .backprog.done .spin{display:none}
+  @keyframes bpspin{to{transform:rotate(360deg)}}
+
+  .empty{padding:54px 20px;text-align:center;color:var(--tx3);background:var(--panel);border:1px dashed var(--line);border-radius:var(--radius)}
+  .empty h3{margin:0 0 8px;color:var(--tx2);font-size:15px}
+  .empty p{margin:0;font-size:13px;line-height:1.9}
+
+  .list{display:flex;flex-direction:column;gap:10px}
+  .row{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+  .row:hover{border-color:#d3d9e2;box-shadow:var(--shadow)}
+  .row.open{border-color:#ffd0a8;box-shadow:0 2px 14px rgba(255,106,0,.09)}
+  .row.pending{opacity:.6}
+  .row.fresh{animation:pop .5s ease-out}
+  @keyframes pop{from{background:#fffaf3}to{background:var(--panel)}}
+  .head{display:grid;grid-template-columns:1.35fr 1fr 218px;gap:16px;padding:14px 16px;cursor:pointer;align-items:start}
+  @media(max-width:960px){.head{grid-template-columns:1fr;gap:10px}}
+  .name{font-size:16.5px;font-weight:700;letter-spacing:-.2px;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .badge{font-size:11px;padding:1px 7px;border-radius:999px;font-weight:600;line-height:18px;white-space:nowrap}
+  .b-niche{background:var(--ok-soft);color:var(--ok)}
+  .b-hot{background:var(--warn-soft);color:var(--warn)}
+  .b-live{background:var(--blue-soft);color:var(--blue)}
+  .b-wait{background:#f2f4f7;color:var(--tx3)}
+  .b-src{background:#f2f4f7;color:var(--tx2);font-weight:600}
+  .b-src.live{background:#e9f7ef;color:var(--ok)}
+  .b-src.cache{background:#fff5e6;color:var(--warn)}
+  .b-src.archive{background:#eef1f5;color:#5b6270}
+  .tags{margin-top:6px;display:flex;gap:5px;flex-wrap:wrap}
+  .tag{font-size:11.5px;color:var(--tx2);background:#f2f4f7;border-radius:5px;padding:1px 7px}
+  .blurb{color:var(--tx2);font-size:13px;margin-top:7px}
+  .fit{margin-top:6px;font-size:12.5px;line-height:1.5;color:var(--tx2)}
+  .fit b{font-weight:600;color:var(--tx)}
+  .fit.fit-ok b{color:var(--ok)}
+  .fit.fit-far b{color:var(--warn)}
+  .tips{display:flex;flex-direction:column;gap:4px}
+  .tips span{font-size:12.5px;color:var(--tx2)}
+  .facts{display:flex;flex-direction:column;gap:5px;font-size:13px;text-align:right}
+  @media(max-width:960px){.facts{text-align:left;flex-direction:row;flex-wrap:wrap;gap:14px}}
+  .fact{font-variant-numeric:tabular-nums}
+  .fact i{font-style:normal;color:var(--tx3);font-size:12.5px;margin-right:6px}
+  .fact b{font-weight:700;font-size:15px}
+  .fact.price b{color:var(--red)}
+  .fact.price .stale{color:var(--tx3);font-size:11.5px;font-weight:400;margin-left:4px;border-bottom:1px dotted var(--tx3);cursor:help}
+  .fact .u{color:var(--tx3);font-size:12px}
+
+  .detail{border-top:1px dashed var(--line);background:var(--panel2);padding:10px 16px 14px;display:none}
+  .row.open .detail{display:block}
+  .tr{border-bottom:1px solid var(--line2);padding:9px 0}
+  .tr:last-of-type{border-bottom:none}
+  .tr-fl{box-shadow:inset 2px 0 0 #7ab8ff;padding-left:9px}
+  .trh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .tno{font-family:ui-monospace,Consolas,monospace;font-weight:700;font-size:13px;color:var(--brand)}
+  .tto{font-size:12.5px;color:var(--tx2)}
+  .fast{font-size:11px;color:var(--blue);background:var(--blue-soft);border-radius:4px;padding:0 5px}
+  .opts{margin-top:5px;display:flex;flex-direction:column;gap:2px}
+  .opt{display:grid;grid-template-columns:150px 1fr auto auto;gap:12px;align-items:center;font-size:12.5px;padding:1px 0}
+  @media(max-width:820px){.opt{grid-template-columns:1fr auto auto;gap:3px 8px}.opt .tm{grid-column:1/-1}}
+  .opt .tm{color:var(--tx)}
+  .opt .du{color:var(--tx3);font-variant-numeric:tabular-nums}
+  .opt .pr{font-weight:700;color:var(--red);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .qty{font-size:11.5px;color:var(--ok);font-weight:600;margin-left:5px}
+  .qty.none{color:var(--tx3);font-weight:400}
+  .buy{font-size:12px;font-weight:700;border-radius:8px;padding:3px 10px;text-decoration:none;
+    background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;white-space:nowrap}
+  .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+  .acts button{font:inherit;font-size:12.5px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 12px;cursor:pointer;color:var(--tx);font-weight:600}
+  .acts button:hover{border-color:var(--brand);color:var(--brand)}
+  .note{color:var(--tx3);font-size:12px;margin-top:8px}
+  .det{display:none;margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+  .det.on{display:block}
+  .det h4{margin:0 0 6px;font-size:11.5px;color:var(--tx3);letter-spacing:.4px}
+  .det .item{display:flex;gap:8px;align-items:center;padding:5px 0}
+  .det .item img{width:42px;height:42px;border-radius:8px;object-fit:cover;background:#f3f4f6}
+  .det .item .nm{font-weight:600;color:#1f2937;font-size:12.5px}
+  .det .item .sub{color:var(--tx3);font-size:11.5px}
+  .det .item a{margin-left:auto;color:var(--brand);text-decoration:none;font-weight:700;white-space:nowrap;font-size:12.5px}
+  /* 逐条景点 / 餐厅 / 住宿分区 */
+  .det .item.poi{padding:4px 0}
+  .det .poinm{font-weight:600;color:#1f2937;font-size:12.5px}
+  .det .poinm.eat{font-weight:500}
+  .det .item .polink{margin-left:auto;color:var(--brand);text-decoration:none;font-size:12px;font-weight:600;white-space:nowrap}
+  .det .item .polink:hover{text-decoration:underline}
+  .det .item.stay{display:block;padding:5px 0}
+  .det .staynm{display:block;font-weight:600;color:#1f2937;font-size:12.5px}
+  .det .stayhint{display:block;color:var(--tx3);font-size:11.5px;line-height:1.5;margin-top:1px}
+  .det .stayacts{margin-top:8px}
+  /* 返程段：头一行是「从哪儿回哪儿 + 日期 + 跳转」，下面接真实返程班次 */
+  .backleg{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:#fafbfc;overflow:hidden}
+  .backleg .bkline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;font-size:12px}
+  .backleg .bklab{font-weight:700;color:var(--tx2);letter-spacing:.3px}
+  /* 往返合计：两程分别多少钱、加起来多少，一行说清。只给单程价会让人以为那就是总价 */
+  .sumline{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;padding:8px 10px;
+    background:linear-gradient(90deg,#fff8f2,#fffdfb);border-top:1px dashed #ffd9bd;font-size:13px;color:var(--tx2)}
+  .sumline b{color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums}
+  .sumline .eq{color:var(--tx3);margin:0 2px}
+  .sumline .tot{color:var(--brand);font-size:16px;font-weight:800}
+  .sumline .tip{margin-left:auto;font-size:11.5px;color:var(--tx3)}
+  .backleg .bkdt{color:var(--tx3);font-variant-numeric:tabular-nums}
+  .backleg .bkpt{color:var(--tx);font-weight:600}
+  .backleg .bkmeta{color:var(--brand);font-weight:600}
+  .backleg .bklnk{text-decoration:none;font-weight:700;font-size:11.5px;
+    padding:3px 9px;border-radius:7px;border:1px solid var(--line);color:var(--tx2);white-space:nowrap}
+  .backleg .bklnk.rail{color:#1d4ed8;border-color:#dbeafe;background:#eff6ff}
+  .backleg .bklnk.air{color:#c2410c;border-color:#ffedd5;background:#fff7ed}
+  .backleg .bklnk:first-of-type{margin-left:auto}
+  .backleg .bkrows{border-top:1px dashed var(--line);padding:4px 8px 2px}
+  /* 返程日期还没开售：班次是「最远可售日」的参考，必须显式标出来，否则用户以为查错了 */
+  .backleg .bkref{display:flex;align-items:flex-start;gap:6px;padding:7px 10px 8px;font-size:11.5px;line-height:1.55;
+    color:#b45309;background:#fffaf2;border-top:1px dashed #ffe2bf}
+  .backleg .bkref b{color:#92400e}
+  /* 勾的到达站没有直达车、退到同城其他站时说一句（蓝色=信息，不是警告） */
+  .backleg .bkref.info{color:#1d4ed8;background:#f5f9ff;border-top-color:#dbeafe}
+  .backleg .bkref.info b{color:#1e40af}
+  .backleg .bkrows .tr{border-top:none;padding:6px 0}
+  .backleg .bkempty{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:7px 10px 9px;
+    border-top:1px dashed var(--line);color:var(--tx3);font-size:12px}
+  .muted{color:var(--tx3)}
+  .spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px;margin-right:6px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* ---------- 行程设定：出发 / 返程 + 车站 / 机场勾选 ---------- */
+  .place{display:inline-flex;align-items:center;gap:6px}
+  .city{width:124px}
+  /* 城市输入：自带下拉候选（原生 datalist 只有「首字母跳转」，滚不动也不好搜，换掉） */
+  .citybox{position:relative;display:inline-block}
+  .citydd{position:absolute;top:calc(100% + 5px);left:0;width:262px;max-height:300px;overflow-y:auto;overscroll-behavior:contain;
+    background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 12px 30px rgba(17,20,28,.13);z-index:60;display:none;padding:4px}
+  .citydd.on{display:block}
+  /* 头部常驻说明：这里能直接打字搜，不是只能在列表里翻 —— 不写清楚用户就会以为城市只有这些 */
+  .citydd .dh{position:sticky;top:-4px;z-index:2;display:flex;align-items:center;gap:5px;margin:-4px -4px 4px;padding:7px 10px 6px;
+    background:#f7f9fc;border-bottom:1px solid var(--line2);border-radius:11px 11px 0 0;font-size:11.5px;color:var(--tx3);line-height:1.5}
+  .citydd .dh .mag{font-size:13px;color:var(--brand);font-weight:700}
+  .citydd .df{padding:7px 10px 8px;font-size:11.5px;color:var(--tx3);border-top:1px solid var(--line2);margin:4px -4px -4px;background:#fbfcfe;border-radius:0 0 11px 11px}
+  .citydd .it{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--tx)}
+  .citydd .it:hover,.citydd .it.act{background:var(--soft);color:var(--brand)}
+  .citydd .it .tg{margin-left:auto;font-size:11px;color:var(--tx3);white-space:nowrap}
+  .citydd .it.act .tg{color:var(--brand)}
+  .citydd .none{padding:10px 10px;font-size:12.5px;color:var(--tx3);line-height:1.6}
+  .pk{border:1px dashed #d5dae2;background:#fff;border-radius:9px;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer;color:var(--tx2);white-space:nowrap;line-height:1.4}
+  .pk:hover{border-color:var(--brand);color:var(--brand)}
+  .pk.on{border-style:solid;border-color:var(--brand);color:var(--brand);background:var(--soft);font-weight:600}
+  /* 还没选的时候，让它看起来像「待办」而不是「说明文字」 */
+  .pk.need{border-color:#ffc79a;color:#a2570a;background:var(--soft);font-weight:600}
+  .pk.need::after{content:'›';margin-left:6px;font-weight:700;color:var(--brand)}
+  /* 往返混搭提示：去程高铁 / 返程飞机 */
+  .mix{align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px;font-size:12.5px;color:var(--tx3)}
+  .mix b{font-weight:600;color:var(--tx);background:var(--soft);border:1px solid #ffd9bd;border-radius:99px;padding:2px 10px;font-size:12px}
+  .mix .arr{color:var(--brand)}
+  .pk.inh{border-style:dashed;color:var(--tx3);background:#fff}
+  .pk-tip{margin-top:10px;padding:7px 10px;border-radius:8px;background:#fffdf5;border:1px solid #f3e6b8;
+    font-size:12px;color:#7a6528;line-height:1.6}
+  .pk-tip span{color:var(--brand);font-weight:700}
+  .picker{margin-top:11px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:12px 14px}
+  .pk-head{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--tx3);flex-wrap:wrap}
+  .pk-head b{color:var(--tx);font-size:13.5px}
+  .pk-head .sp{flex:1}
+  .pk-sec{margin-top:10px}
+  .pk-sec h5{margin:0 0 6px;font-size:11.5px;color:var(--tx3);font-weight:600;letter-spacing:.3px}
+  .pk-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .pk-c{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 11px;font-size:12.5px;cursor:pointer;color:#374151;user-select:none;line-height:1.55}
+  .pk-c:hover{border-color:var(--brand)}
+  .pk-c.on{background:var(--soft);border-color:var(--brand);color:var(--brand);font-weight:600}
+  .pk-c .km{color:var(--tx3);font-size:11px;margin-left:5px}
+  .pk-c.on .km{color:var(--brand)}
+
+  /* ---------- 行程安排（本地规则生成） ---------- */
+  .plan{margin-top:11px;background:#fffdf7;border:1px solid #ffe6c2;border-radius:11px;padding:11px 13px}
+  .plan .ailab{font-size:12px;font-weight:700;color:#a2570a;margin-bottom:6px}
+  .plan .engine{font-size:11px;color:#b08453;margin-top:7px;padding-top:6px;border-top:1px dashed #f0dcc0}
+  .plan .pl{display:flex;gap:9px;align-items:baseline;font-size:13px;line-height:1.9;color:#5c3a12}
+  .plan .pl .k{flex:0 0 auto;width:19px;height:19px;border-radius:6px;background:#ffe9c9;color:#a2570a;font-size:11.5px;font-weight:700;display:grid;place-items:center;transform:translateY(1px)}
+  .plan .pl a{color:#a2570a;font-weight:600;text-decoration:none;border-bottom:1px dashed #e0b477;margin-left:5px;white-space:nowrap}
+
+  /* 购票按钮：高铁去 12306、机票去飞猪，视觉上也要分得开 */
+  .buy.rail{background:linear-gradient(135deg,#1677ff,#3f9bff)}
+  .buy.air{background:linear-gradient(135deg,var(--brand),var(--brand2))}
+  .buy.ghost{background:#fff;color:var(--brand);border:1px solid #ffd0a8}
+
+  footer{margin-top:30px;color:var(--tx3);font-size:12px;line-height:1.9;border-top:1px solid var(--line);padding-top:16px}
+
+  /* ---------- 目的地总览墙：一屏铺完，点开再看细节 ---------- */
+  .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:8px}
+  .wall .more{grid-column:1/-1}
+  @media(max-width:640px){.wall{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}}
+  .tile{display:flex;flex-direction:column;gap:3px;text-align:left;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:9px 11px 8px;
+    font:inherit;color:inherit;transition:border-color .14s,box-shadow .14s,transform .14s;min-height:66px}
+  .tile:hover{border-color:#ffc79a;box-shadow:0 6px 16px -12px rgba(255,106,0,.6);transform:translateY(-1px)}
+  .tile:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+  .tile .tn{display:flex;align-items:baseline;gap:5px;font-size:14px;font-weight:700;letter-spacing:-.2px}
+  .tile .tn .fm{font-size:10px;font-weight:600;color:var(--tx3);border:1px solid var(--line);border-radius:5px;padding:0 4px;line-height:14px;white-space:nowrap}
+  .tile .tr2{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden}
+  .tile .tr2 .mo{font-size:11.5px}
+  .tile .tr2 .pr{margin-left:auto;font-weight:700;color:var(--tx)}
+  /* 往返合计：字比单程价略小，挤在 152px 的方块里也要完整显示 */
+  .tile .tr2 .pr.tot{color:var(--brand);font-size:11.5px;letter-spacing:-.2px}
+  .tile .ts{font-size:11px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile .ts .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ok);margin-right:4px;vertical-align:1px}
+  .tile .ts .dot.none{background:#f59e0b}
+  .tile.nodata{background:var(--panel2);border-style:dashed}
+  .tile.nodata .tn{color:var(--tx2);font-weight:600}
+  .tile.fresh{animation:tfresh .9s ease}
+  @keyframes tfresh{0%{background:#fff7ee;border-color:#ffb271}100%{background:var(--panel)}}
+
+  /* ---------- 详情弹层 ---------- */
+  .sheet-wrap{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px 16px;
+    background:rgba(18,22,30,.38);backdrop-filter:blur(2px)}
+  .sheet{width:min(760px,100%);max-height:min(86vh,860px);display:flex;flex-direction:column;
+    background:var(--panel);border-radius:16px;box-shadow:0 24px 60px -24px rgba(16,24,40,.45);overflow:hidden;
+    animation:sin .18s ease}
+  @keyframes sin{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+  .sheet-h{display:flex;gap:12px;align-items:flex-start;padding:16px 18px 12px;border-bottom:1px solid var(--line2)}
+  .sheet-h .sname{font-size:20px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .sheet-h .tags{margin-top:5px;display:flex;flex-wrap:wrap;gap:5px}
+  .sheet-h .blurb{margin-top:5px;font-size:12.5px;color:var(--tx2);line-height:1.55}
+  .sheet-x{margin-left:auto;flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:9px;
+    width:30px;height:30px;font-size:15px;color:var(--tx2);cursor:pointer;line-height:1}
+  .sheet-x:hover{border-color:#cfd5de;color:var(--tx)}
+  .sheet-b{overflow:auto;padding:12px 18px 16px;overscroll-behavior:contain}
+  .sheet-b .tips{margin-top:2px;display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--tx2)}
+  .sheet-b .tips b{color:var(--tx);font-weight:600}
+  .sheet-b .detail{display:block;border-top:none;background:transparent;padding:8px 0 0}
+  .sheet-f{display:flex;gap:8px;align-items:center;padding:11px 18px;border-top:1px solid var(--line2);background:var(--panel2);font-size:12px;color:var(--tx3)}
+  .sheet-f .sp{margin-left:auto}
+  /* 往返合计钉在底部栏：内容区要滚动，合计写在滚动区里等于没写 */
+  .sheet-f .ftot{display:inline-flex;align-items:baseline;gap:5px;margin-left:10px;
+    background:var(--soft);border:1px solid #ffd9bd;border-radius:8px;padding:3px 9px;font-size:12px;color:var(--tx2)}
+  .sheet-f .ftot b{color:var(--brand);font-size:14px;font-weight:800}
+  .sheet-f .ftot i{font-style:normal;color:var(--tx3);font-size:11px}
+  .sheet-f .ftot.pending{color:var(--tx3);background:transparent;border-style:dashed}
+  @media(max-width:640px){
+    .sheet-wrap{padding:0;align-items:flex-end}
+    .sheet{max-height:92vh;border-radius:16px 16px 0 0}
+    .sheet-h{padding:14px 14px 10px}.sheet-b{padding:10px 14px 14px}.sheet-f{padding:10px 14px}
+  }
+
+  /* 搜索前的“还没选站点”提醒：不拦人，但一定看得见 */
+  .precheck{margin-top:10px;border:1px solid #ffd9bd;background:var(--soft);border-radius:11px;padding:10px 13px;
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:#8a4b12}
+  .precheck b{font-weight:700}
+  .precheck .sp{margin-left:auto;display:flex;gap:8px}
+  .precheck button{border-radius:8px;padding:4px 11px;font-size:12.5px;cursor:pointer;border:1px solid #ffc79a;background:#fff;color:#8a4b12;font-weight:600}
+  .precheck button.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="logo">耍</div>
+    <div class="brandname">耍起</div>
+    <div class="tagline"><span class="live"></span>12306 实时余票 · 直飞航线</div>
+  </header>
+
+  <section class="hero">
+    <svg class="hrout" viewBox="0 0 300 110" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="rg" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#ff6a00" stop-opacity=".10"/>
+          <stop offset=".55" stop-color="#ff8a00" stop-opacity=".5"/>
+          <stop offset="1" stop-color="#ffa02e" stop-opacity=".9"/>
+        </linearGradient>
+      </defs>
+      <path d="M8 90C66 90 80 34 150 34c54 0 74 24 128 10" stroke="url(#rg)" stroke-width="2"
+        stroke-linecap="round" stroke-dasharray="1 9"/>
+      <circle cx="8" cy="90" r="8.5" stroke="#ff6a00" stroke-opacity=".2" stroke-width="2"/>
+      <circle cx="8" cy="90" r="3.6" fill="#ff8a00" fill-opacity=".8"/>
+      <path d="M274 34 300 44l-26 10 5-10z" fill="#ff8a00" fill-opacity=".85"/>
+    </svg>
+    <div class="claim"><span class="dot"></span>随心出发 · 即刻耍起</div>
+    <h1>这几天，去哪儿<span class="hl">耍</span>？</h1>
+    <p class="sub">选出发城市与日期，一次列出时间够得着的地方——每条都带真实车次或直飞航线，看好即可下单。</p>
+
+    <div class="row2">
+      <div class="seg" id="trip">
+        <button data-t="oneway" class="on">单程</button>
+        <button data-t="round">往返</button>
+      </div>
+      <span class="lab">出发</span>
+      <span class="place">
+        <span class="citybox">
+          <input class="mini city" id="fromCity" value="苏州" autocomplete="off" spellcheck="false" placeholder="输入城市，如 苏州" title="直接打字输入城市名，会自动匹配">
+          <div class="citydd" id="fromDD"></div>
+        </span>
+        <button class="pk" id="fromPick" type="button">选择车站 / 机场</button>
+      </span>
+      <span class="lab">出发日期</span>
+      <input type="date" id="date" class="mini">
+      <span id="backDateWrap" style="display:none">
+        <span class="lab">返程日期</span>
+        <input type="date" id="backDate" class="mini">
+        <!-- 返程日期超出 12306 预售期时立刻提示，别等点开目的地才发现「待查」 -->
+        <span id="bdateHint" class="bhint" style="display:none"></span>
+      </span>
+      <span id="daysWrap">
+        <span class="lab">天数</span>
+        <span id="days" class="seg-chips" style="display:inline-flex;gap:6px">
+          <span class="chip" data-day="0.5">半天</span>
+          <span class="chip" data-day="1">1天</span>
+          <span class="chip on" data-day="2">周末2天</span>
+          <span class="chip" data-day="3">3天</span>
+        </span>
+      </span>
+      <span class="lab" id="spanLab" style="display:none">共 <b id="spanN">2</b> 天</span>
+      <span class="brk"></span>
+      <span class="fld"><span class="lab">主题</span><select id="tag"></select></span>
+      <button class="go" id="go">搜索</button>
+    </div>
+
+    <div class="row2" id="backRow" style="display:none">
+      <span class="lab">返程地点</span>
+      <span class="place">
+        <span class="citybox">
+          <input class="mini city" id="backCity" value="" placeholder="同出发地" autocomplete="off" spellcheck="false" title="直接打字输入返程城市，会自动匹配；留空则从出发城市返回">
+          <div class="citydd" id="backDD"></div>
+        </span>
+        <button class="pk" id="backPick" type="button">选择车站 / 机场</button>
+      </span>
+      <span class="muted" style="font-size:12px">（城市不填 = 与出发地相同，车站/机场仍要单独选）</span>
+    </div>
+
+    <div class="mix" id="mix" style="display:none"></div>
+    <div class="precheck" id="precheck" style="display:none"></div>
+
+    <datalist id="citylist"></datalist>
+    <div class="picker" id="picker" style="display:none"></div>
+
+    <div class="err" id="err"></div>
+    <div class="toast" id="toast"></div>
+  </section>
+
+  <div class="sheet-wrap" id="sheetWrap" style="display:none">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetName" id="sheet"></div>
+  </div>
+
+  <div class="bar" id="bar"><i id="barfill"></i></div>
+
+  <div class="tools" id="tools" style="display:none">
+    <span class="lab">排序</span>
+    <div class="seg" id="sort">
+      <button data-k="score" class="on">综合推荐</button>
+      <button data-k="hours">耗时最短</button>
+      <button data-k="dep">发车最早</button>
+      <button data-k="price">票价最低</button>
+      <button data-k="fame">名气最高</button>
+    </div>
+    <span class="cov" id="cov">实时覆盖 —</span>
+    <button class="mini" id="fill">补查剩下的</button>
+    <button class="mini" id="alltoggle" style="display:none">显示全部</button>
+    <span class="backprog" id="backprog"></span>
+    <div class="sp"></div>
+    <span class="cnt" id="cnt"></span>
+  </div>
+
+  <div class="hint" id="hint"></div>
+
+  <div id="stage">
+    <div class="empty" id="empty">
+      <h3>选好条件，点「搜索」</h3>
+      <p>高铁会扫完 <span id="totnum">216</span> 个候选目的地，航班取其中热度最高的 30 个直飞城市，把有票的全部列出来。</p>
+    </div>
+  </div>
+
+  <div class="list" id="list" style="display:none"></div>
+
+  <footer>
+    班次与票价来自 <b>12306 公开余票接口</b>（只读查询，不代购、不抢票、不留存任何个人信息）；航班航线来自公开航线数据，购票跳转至 <b>12306 官方页面 / 飞猪</b> 完成，本站不介入交易。景点与吃食为本地策展内容。
+  </footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+function showErr(m) {
+  const b = $('#err');
+  if (!m) { b.classList.remove('on'); b.textContent = ''; return; }
+  b.classList.add('on'); b.textContent = m;
+}
+/* 中性提示（不是错误）：停止扫描、缓存已是最新这类「说明」用，别用红色吓人 */
+let toastT = null;
+function toast(m) {
+  const t = $('#toast');
+  if (!m) { t.classList.remove('on'); return; }
+  t.textContent = m; t.classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('on'), 4200);
+}
+let days = 2, tag = '', sortKey = 'score', items = [], byName = new Map(), es = null;
+
+/* 服务跑在云端容器里，可能刚从休眠被唤醒：第一条请求会超时或直接失败。
+ * 统一给「超时 + 有限重试」，并把等待状态显示出来 —— 否则用户看到的是一张空白页，
+ * 会以为网站坏了，而不是「再等十秒就好」。 */
+let bootMsg = '';
+async function jget(url, { timeout = 25000, retry = 2, label = '' } = {}) {
+  let last;
+  for (let i = 0; i <= retry; i++) {
+    if (i) { bootMsg = `${label}服务响应较慢，正在重试（第 ${i} 次）…`; paintHint(); }
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), timeout);
+    try {
+      const r = await fetch(url, { signal: ac.signal, cache: 'no-store' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
+    } catch (e) { last = e; }
+    finally { clearTimeout(timer); }
+    if (i < retry) await new Promise(r => setTimeout(r, 1500 * (i + 1)));
+  }
+  throw last;
+}
+/* 出行方式不再单独设下拉：勾了车站就是坐高铁、勾了机场就是坐飞机，
+ * 这本来就是用户已经表达过的意图，再让他选一次「都可以 / 只看高铁」是重复劳动。
+ * 服务端要的 transport 由勾选反推（见 transportOf）。 */
+let demo = false, covered = 0, total = 216;
+/* 往返且只选了一种交通方式时，服务端会剔掉「这一程回不来」的目的地，这里记下数量用于说明 */
+let backFiltered = 0;
+/* 「去不了」被剔掉的数量（选的交通方式在当地走不通），与「回不来」分开统计 */
+let routeFiltered = 0;
+let preSaleMax = '', railReady = true, airReady = true;
+let searched = false, scanning = false, filling = false;
+let scanKey = '';          // 当前正在跑的服务端任务 id（点「停止」时指名叫停）
+/**
+ * 只列出「有直达班次」的目的地 —— 这是用户要的默认效果。
+ * 216 个候选里总有一部分从一个城市确实没有直达，把空行也铺出来会让列表尾部显得像「坏了」；
+ * 默认收起、可一键展开更符合预期。
+ */
+let showAll = false;
+/** 总览墙的默认上限：缩略方块很小，直接把所有有直达的目的地铺开，不用再点「再展开」 */
+const SHOW_CAP = 120;
+/** 深链 ?open=1 展开第一条有班次的；?open=城市名 展开指定的一条 */
+let openParam = '', openApplied = false;
+function applyOpen() {
+  if (!openParam || openApplied || !items.length) return;
+  // 列表是分批到达的：第一批里没有目标城市是常态。
+  // 所以只有「真的匹配到」才置 openApplied，否则后面永远不再试，深链就失效了。
+  let target = null;
+  if (openParam === '1') {
+    const f = items.find(x => x.covered);
+    if (!f) return;
+    openSet.add(f.name); target = f;
+  } else if (openParam === 'all') {
+    const hit = items.filter(x => x.covered);
+    if (!hit.length) return;
+    hit.slice(0, 3).forEach(x => openSet.add(x.name));
+    target = hit[0];
+  } else {
+    const hit = items.filter(x => x.name === openParam);
+    if (!hit.length) return;
+    hit.forEach(x => openSet.add(x.name));
+    target = hit[0];
+  }
+  openApplied = true;
+  /* 深链直接落到详情弹层：现在列表只是缩略方块，把链接指向的城市展开才有意义 */
+  if (target) setTimeout(() => openSheet(target), 60);
+}
+const openSet = new Set();
+/** 本次搜索里已经向飞猪要过实时航班的目的地（同一条只自动拉一次，避免反复展开反复打） */
+const liveTried = new Set();
+/** 往返时「返程班次」只查一次；用户再点「查返程」也走同一个入口 */
+const backTried = new Set();
+const planCache = new Map();
+let lastStats = null;
+
+/* ---------- 行程设定：城市 + 勾选车站/机场 + 单程往返 ---------- */
+let tripType = 'oneway';
+const places = {
+  from: { city: '苏州', stations: [], ports: [] },
+  back: { city: '', stations: [], ports: [] }
+};
+/** 城市 → { stations, airports } 缓存（来自 /api/places?city=） */
+const placeMeta = new Map();
+let pickerSide = '';
+
+function ymd(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+
+const fromCityEl = $('#fromCity'), backCityEl = $('#backCity');
+(function () {
+  const d = new Date(); d.setDate(d.getDate() + 7);
+  $('#date').value = ymd(d);
+  const b = new Date(d); b.setDate(b.getDate() + 2);
+  $('#backDate').value = ymd(b);
+})();
+
+/** 城市清单：来自后端（车站表 432 城 + 机场表 255 城的并集），支持输入即筛选 */
+let cityIndex = [];
+async function loadCityList() {
+  try {
+    const j = await (await fetch('/api/places')).json();
+    cityIndex = j.cities || [];
+    // 原生 datalist 留作无障碍兜底（部分浏览器 / 读屏软件仍然用它）
+    $('#citylist').innerHTML = cityIndex.map(c => {
+      const note = [c.rail ? '高铁' : '', c.air ? (c.ownAir ? '机场' : '邻近机场') : ''].filter(Boolean).join('·');
+      return `<option value="${esc(c.name)}">${esc(note)}</option>`;
+    }).join('');
+  } catch { /* 城市清单拿不到也不影响：仍可直接输入城市名 */ }
+}
+
+/** 城市候选。
+ *  空输入时不铺 400 多个城市（铺了也会被误读成「就这些」），
+ *  只列候选池里那 100 个热门目的地，并在列表头尾明确写「输入可搜全部」。
+ *  一旦开始输入，就搜全量城市 —— 池子只是默认展示范围，不是能力边界。 */
+function matchCities(q) {
+  const s = String(q || '').trim();
+  if (!s) return cityIndex.filter(c => c.pooled).slice(0, 14);
+  const eq = [], pre = [], inc = [];
+  for (const c of cityIndex) {
+    const n = c.name;
+    if (n === s) eq.push(c);
+    else if (n.startsWith(s)) pre.push(c);
+    else if (n.includes(s)) inc.push(c);
+  }
+  return eq.concat(pre, inc).slice(0, 40);
+}
+
+/**
+ * 城市输入框 + 下拉候选。
+ * 原生 <datalist> 的问题：只能靠方向键一条条过，鼠标滚轮滚的是页面不是列表，
+ * 「返程地点」这种 400 多个城市根本翻不完。这里自己做一个：滚轮、输入即筛、上下键 + 回车。
+ */
+function setupCityBox(input, dd, commit) {
+  let cands = [], act = -1;
+  const paint = () => {
+    const typed = !!String(input.value || '').trim();
+    const mag = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="6.8" cy="6.8" r="4.6" stroke="#ff6a00" stroke-width="1.9"/><path d="M10.4 10.4 14 14" stroke="#ff6a00" stroke-width="1.9" stroke-linecap="round"/></svg>';
+    const head = `<div class="dh">${mag}<span>打字直接搜 · 共 ${cityIndex.length || '—'} 个城市</span></div>`;
+    let body;
+    if (!cands.length) {
+      body = `<div class="none">没有匹配「${esc(input.value)}」的城市，换个关键词试试（也可以直接回车按原样搜索）</div>`;
+    } else {
+      body = cands.map((c, i) => {
+        const tg = [c.rail ? '高铁' : '', c.air ? (c.ownAir ? '机场' : '邻近机场') : ''].filter(Boolean).join(' · ');
+        return `<div class="it${i === act ? ' act' : ''}" data-i="${i}"><span>${esc(c.name)}</span><span class="tg">${esc(tg)}</span></div>`;
+      }).join('');
+    }
+    const foot = typed ? '' : `<div class="df">以上是热门目的地，输入关键词可搜全部 ${cityIndex.length || ''} 个城市</div>`;
+    dd.innerHTML = head + body + foot;
+    dd.classList.add('on');
+  };
+  const close = () => { dd.classList.remove('on'); act = -1; };
+  const choose = (i) => {
+    const c = cands[i];
+    if (!c) return;
+    input.value = c.name;
+    close();
+    commit();
+  };
+  input.addEventListener('input', () => { cands = matchCities(input.value); act = cands.length ? 0 : -1; paint(); });
+  input.addEventListener('focus', () => { cands = matchCities(input.value); act = cands.length ? 0 : -1; paint(); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!dd.classList.contains('on')) { cands = matchCities(input.value); paint(); }
+      e.preventDefault();
+      act = Math.max(0, Math.min(cands.length - 1, act + (e.key === 'ArrowDown' ? 1 : -1)));
+      paint();
+      const el = dd.querySelector('.it.act');
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      if (dd.classList.contains('on') && act >= 0) { e.preventDefault(); choose(act); }
+      else { close(); commit(); }
+    } else if (e.key === 'Escape') { close(); }
+  });
+  dd.addEventListener('mousedown', (e) => {
+    const it = e.target.closest('.it');
+    if (it) { e.preventDefault(); choose(Number(it.dataset.i)); }
+  });
+  input.addEventListener('blur', () => setTimeout(close, 120));
+  // 滚轮：列表本身可滚（原生），这里只阻止冒泡去滚整页
+  dd.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
+}
+
+async function metaOf(city) {
+  if (!city) return { stations: [], airports: [] };
+  if (placeMeta.has(city)) return placeMeta.get(city);
+  try {
+    const j = await (await fetch('/api/places?city=' + encodeURIComponent(city))).json();
+    const m = { stations: j.stations || [], airports: j.airports || [] };
+    placeMeta.set(city, m);
+    return m;
+  } catch { return { stations: [], airports: [] }; }
+}
+
+/** 某侧（出发/返程）实际生效的城市 */
+function cityOf(side) { return places[side].city || places.from.city || '苏州'; }
+
+/** 分享链接自动开跑时用：按「最主要车站 + 全部机场」补默认勾选，
+ *  否则点开分享链接会直接撞上「必须先选车站/机场」的拦截，页面一片空白。 */
+async function autoPick(side) {
+  const p = places[side];
+  if (p.stations.length || p.ports.length) return;
+  const m = await metaOf(cityOf(side));
+  p.stations = m.stations.slice(0, 2);
+  p.ports = m.airports.map(a => a.iata);
+  paintPickBtn(side);
+}
+
+function paintPickBtn(side) {
+  const p = places[side];
+  const btn = side === 'from' ? $('#fromPick') : $('#backPick');
+  const bits = [];
+  if (p.stations.length) bits.push('车站 ' + p.stations.length);
+  if (p.ports.length) bits.push('机场 ' + p.ports.length);
+  /* 一律写「选择车站 / 机场」：以前返程没勾会显示「同出发」，
+   * 那三个字既不像按钮、也看不出到底查的是高铁还是飞机，用户只会一头雾水。
+   * 现在没勾就是「没选」，并且会拦住搜索，逼着人把这一步做完。 */
+  btn.textContent = bits.length ? bits.join(' · ') : '选择车站 / 机场';
+  btn.classList.toggle('on', pickerSide === side);
+  btn.classList.remove('inh');
+  btn.classList.toggle('need', !bits.length);
+  if ($('#precheck') && $('#precheck').style.display !== 'none' && !missingSide()) hidePrecheck();
+  paintMix();
+}
+
+function closePicker() {
+  pickerSide = '';
+  $('#picker').style.display = 'none';
+  paintPickBtn('from'); paintPickBtn('back');
+}
+
+async function togglePicker(side) {
+  if (pickerSide === side) return closePicker();
+  pickerSide = side;
+  $('#picker').style.display = '';
+  paintPickBtn('from'); paintPickBtn('back');
+  await renderPicker(side);
+}
+
+async function renderPicker(side) {
+  const el = $('#picker');
+  const p = places[side];
+  const city = cityOf(side);
+  el.innerHTML = '<div class="muted" style="font-size:12.5px">正在载入车站与机场…</div>';
+  const m = await metaOf(city);
+  if (pickerSide !== side) return;   // 加载期间用户已经切走
+  const st = m.stations.slice(0, 30), ap = m.airports;
+  const selSt = new Set(p.stations), selAp = new Set(p.ports);
+  const title = side === 'from' ? '出发' : '返程';
+  el.innerHTML = `
+    <div class="pk-head">
+      <b>${esc(city)}</b> · ${title}车站与机场
+      <span class="sp"></span>
+      <button class="mini" data-pk="all">全选</button>
+      <button class="mini" data-pk="none">清空</button>
+      <button class="mini" data-pk="done">完成</button>
+    </div>
+    ${st.length ? `<div class="pk-sec"><h5>车站（高铁）</h5><div class="pk-chips">${
+      st.map(s => `<span class="pk-c${selSt.has(s) ? ' on' : ''}" data-st="${esc(s)}">${esc(s)}</span>`).join('')
+    }</div></div>` : ''}
+    ${ap.length ? `<div class="pk-sec"><h5>机场（航班）</h5><div class="pk-chips">${
+      ap.map(a => `<span class="pk-c${selAp.has(a.iata) ? ' on' : ''}" data-ap="${esc(a.iata)}">${esc(a.cn || a.city)}<span class="km">${
+        a.own ? '本市' : '约' + a.km + 'km'}</span></span>`).join('')
+    }</div></div>` : ''}
+    ${(!st.length && !ap.length) ? '<div class="muted" style="font-size:12.5px;margin-top:8px">这个城市暂无车站/机场数据，可直接搜索。</div>' : ''}
+    ${side === 'back' && (places.from.stations.length || places.from.ports.length)
+      ? `<div class="pk-tip">回程跟去程一样？点一下
+          <button class="mini" data-pk="same" type="button" style="margin-left:6px">沿用出发侧</button>
+          <span style="color:var(--tx3)">（去程坐飞机，回程也查飞机）</span></div>` : ''}
+    <div class="muted" style="font-size:11.5px;margin-top:9px">勾选之后结果<span style="color:var(--brand);font-weight:600">只包含你勾的</span>：只勾车站就只出高铁，只勾机场就只出航班。</div>`;
+
+  el.querySelectorAll('.pk-c').forEach(c => c.onclick = () => {
+    const isSt = c.dataset.st !== undefined;
+    const val = isSt ? c.dataset.st : c.dataset.ap;
+    const arr = isSt ? p.stations : p.ports;
+    const i = arr.indexOf(val);
+    if (i >= 0) arr.splice(i, 1); else arr.push(val);
+    c.classList.toggle('on');
+    paintPickBtn(side);
+  });
+  el.querySelectorAll('[data-pk]').forEach(b => b.onclick = async () => {
+    const a = b.dataset.pk;
+    if (a === 'done') return closePicker();
+    if (a === 'all') { p.stations = st.slice(); p.ports = ap.map(x => x.iata); }
+    else if (a === 'same') {
+      /* 一键照抄出发侧。返程城市跟出发地不同时，只在「这个城市真正有的站/机场」里取交集，
+       * 否则会勾上一些本地根本不存在的站，那些勾选一路传到后端全是空查。 */
+      const stSet = new Set(st), apSet = new Set(ap.map(x => x.iata));
+      p.stations = places.from.stations.filter(s => stSet.has(s));
+      p.ports = places.from.ports.filter(s => apSet.has(s));
+      if (!p.stations.length && !p.ports.length) toast('出发侧勾的站/机场，在这个城市没有');
+    }
+    else { p.stations = []; p.ports = []; }
+    paintPickBtn(side);
+    await renderPicker(side);
+  });
+}
+
+/**
+ * 从勾选反推「去程要查什么」：勾了车站=坐高铁，勾了机场=坐飞机。
+ * 只算**出发侧**——返程的交通方式由后端按返程勾选单独判定，
+ * 把两侧勾选加在一起算会让「去程高铁 + 返程飞机」变成「都可以」，
+ * 去程白查一遍飞机（用户没勾机场）、返程白查一遍火车。
+ * 只勾一类 → 只查那一类（省掉一半无谓请求，结果也不会出现没选的交通方式）；
+ * 两类都勾或都没勾 → 都查。
+ */
+function transportOf() {
+  const st = places.from.stations.length;
+  const ap = places.from.ports.length;
+  if (st && !ap) return 'train';
+  if (ap && !st) return 'flight';
+  return 'all';
+}
+
+/** 某一侧最终会走什么：train / flight / both（both = 两种都查；没勾也当 both） */
+function modeOfSide(side) {
+  const p = places[side];
+  const own = p.stations.length || p.ports.length;
+  /* 返程没单独勾 = 沿用出发侧，见 backIntentOf */
+  const s = side === 'back' && !own ? places.from.stations.length : p.stations.length;
+  const a = side === 'back' && !own ? places.from.ports.length : p.ports.length;
+  if (s && !a) return 'train';
+  if (a && !s) return 'flight';
+  return 'both';
+}
+
+/** 往返「一程高铁 + 一程飞机」时把结论摆在界面上，免得用户以为点坏了 */
+function paintMix() {
+  const el = $('#mix');
+  if (!el) return;
+  const a = modeOfSide('from'), b = modeOfSide('back');
+  const mixed = tripType === 'round' && a !== 'both' && b !== 'both' && a !== b;
+  if (!mixed) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  const lab = m => (m === 'train' ? '🚄 高铁' : '✈ 飞机');
+  el.innerHTML = `<b>去程 ${lab(a)}</b><span class="arr">→</span><b>返程 ${lab(b)}</b>`
+    + '<span>一程高铁、一程飞机，两段各按自己的方式查</span>';
+  el.style.display = 'flex';
+}
+
+/** 组装后端需要的行程参数 */
+function tripParams() {
+  const p = { from: places.from.city || '苏州', tripType, transport: transportOf() };
+  /* pick=1 告诉后端「用户动过车站/机场勾选」：此时只出勾过的站点，
+   * 没勾车站就不出高铁、没勾机场就不出航班 —— 严格匹配，不做兜底。 */
+  /* 去程与返程的勾选必须分开上报：pick 只管去程，backPick 只管返程。
+   * 以前只看「动过任一勾选」，于是「只勾了回程昆山南」会被当成去程要严格匹配，
+   * 去程一个站都没勾 → 直接空结果。 */
+  if (places.from.stations.length || places.from.ports.length) p.pick = '1';
+  if (tripType === 'round' && (places.back.stations.length || places.back.ports.length)) p.backPick = '1';
+  if (places.from.stations.length) p.fromStations = places.from.stations.join(',');
+  if (places.from.ports.length) p.fromPorts = places.from.ports.join(',');
+  if (tripType === 'round') {
+    p.backCity = places.back.city || places.from.city || '苏州';
+    if (places.back.stations.length) p.backStations = places.back.stations.join(',');
+    if (places.back.ports.length) p.backPorts = places.back.ports.join(',');
+    const bd = $('#backDate').value;
+    if (bd) p.backDate = bd;
+  }
+  return p;
+}
+
+/* ---------- 初始化（不自动搜索：搜索按钮是唯一的取数入口） ---------- */
+document.querySelectorAll('[data-day]').forEach(el => el.onclick = () => {
+  document.querySelectorAll('[data-day]').forEach(x => x.classList.remove('on'));
+  el.classList.add('on'); days = Number(el.dataset.day);
+});
+document.querySelector('#sort').addEventListener('click', e => {
+  const b = e.target.closest('button[data-k]'); if (!b) return;
+  document.querySelectorAll('#sort button').forEach(x => x.classList.toggle('on', x === b));
+  sortKey = b.dataset.k; render();
+});
+$('#tag').onchange = () => { tag = $('#tag').value; if (searched) runSearch(); };
+$('#date').onchange = () => { syncTripUI(); if (searched) runSearch(); };
+
+$('#trip').addEventListener('click', e => {
+  const b = e.target.closest('button[data-t]'); if (!b) return;
+  document.querySelectorAll('#trip button').forEach(x => x.classList.toggle('on', x === b));
+  tripType = b.dataset.t;
+  syncTripUI();
+  if (searched) runSearch();
+});
+/**
+ * 单程 / 往返 的界面差异：
+ *   单程 → 只选出发日期 + 天数（「半天 / 周末2天」是产品的核心输入：时间预算）
+ *   往返 → 只选出发日期 + 返程日期，天数由两个日期算出来，不再让用户重复选一遍
+ * 返程地点（车站/机场）只在往返时出现。
+ */
+function syncTripUI() {
+  const round = tripType === 'round';
+  $('#backRow').style.display = round ? 'flex' : 'none';
+  $('#backDateWrap').style.display = round ? 'inline-flex' : 'none';
+  $('#daysWrap').style.display = round ? 'none' : 'inline-flex';
+  $('#spanLab').style.display = round ? 'inline-block' : 'none';
+  if (round) {
+    const a = Date.parse($('#date').value), b = Date.parse($('#backDate').value);
+    let n = Math.round((b - a) / 86400000);
+    if (!Number.isFinite(n) || n <= 0) {
+      // 返程日期早于出发日期 → 自动顺延到「出发 + 1 天」，别让用户自己找错
+      const d0 = new Date(Date.parse($('#date').value) || Date.now());
+      d0.setDate(d0.getDate() + 1);
+      $('#backDate').value = ymd(d0);
+      n = 1;
+    }
+    days = Math.max(0.5, n);
+    $('#spanN').textContent = days;
+  }
+  if (!round && pickerSide === 'back') closePicker();
+  /* 切到往返时返程还没选 → 按钮立刻变成待办样式，别等点了搜索才发现要选 */
+  paintPickBtn('from'); paintPickBtn('back');
+  paintMix();
+  paintBdateHint();
+}
+/* 返程日期是否已开售：12306 预售期外的票查不到，必须当场说清，
+ * 否则用户点开目的地看到的是「返程待查」，会以为是系统坏了。 */
+function paintBdateHint() {
+  const el = $('#bdateHint');
+  if (!el) return;
+  const v = $('#backDate').value;
+  const late = tripType === 'round' && preSaleMax && v && v > preSaleMax;
+  el.textContent = late ? `未开售 · 最远 ${preSaleMax}` : '';
+  el.style.display = late ? 'inline-block' : 'none';
+  el.title = late ? `12306 目前只发售 ${preSaleMax} 以内的车票，${v} 的票还没开卖；搜出来会先给你 ${preSaleMax} 的班次做参考。` : '';
+}
+setupCityBox(fromCityEl, $('#fromDD'), () => fromCityEl.onchange());
+setupCityBox(backCityEl, $('#backDD'), () => backCityEl.onchange());
+fromCityEl.onchange = () => {
+  places.from.city = fromCityEl.value.trim() || '苏州';
+  fromCityEl.value = places.from.city;
+  places.from.stations = []; places.from.ports = [];     // 换城市后旧车站不再适用
+  paintPickBtn('from');
+  if (pickerSide === 'from') renderPicker('from');
+  /* 换城市后旧勾选已清空：不能直接 runSearch，否则绕过了「必须选站」的校验 */
+  if (searched) requestSearch();
+};
+backCityEl.onchange = () => {
+  places.back.city = backCityEl.value.trim();            // 留空 = 与出发地相同
+  places.back.stations = []; places.back.ports = [];
+  paintPickBtn('back');
+  if (pickerSide === 'back') renderPicker('back');
+  if (searched) requestSearch();
+};
+$('#backDate').onchange = () => { syncTripUI(); if (searched) runSearch(); };
+$('#fromPick').onclick = () => togglePicker('from');
+$('#backPick').onclick = () => togglePicker('back');
+$('#go').onclick = () => (scanning ? stopScan() : requestSearch());
+
+/* 没勾车站/机场就不让搜。
+ * 以前是「提醒一下，还能点就这样查」，结果大量用户压根没意识到那一栏可以点，
+ * 出来的是高铁+飞机混排，还以为产品在乱推。往返时更糟：返程不勾会静默沿用出发侧，
+ * 于是「去程坐飞机回来也坐飞机」这种假设被当成了用户的选择。
+ * 现在的规则：去程必须选；往返时返程也必须自己选，两侧都选完才放行。 */
+function missingSide() {
+  if (!places.from.stations.length && !places.from.ports.length) return 'from';
+  if (tripType === 'round' && !places.back.stations.length && !places.back.ports.length) return 'back';
+  return '';
+}
+function hidePrecheck() {
+  const el = $('#precheck');
+  el.style.display = 'none';
+  el.innerHTML = '';
+}
+function showPrecheck(side) {
+  const el = $('#precheck');
+  const who = side === 'back' ? '返程' : '出发';
+  el.innerHTML = `<span><b>还没选${who}的车站 / 机场。</b>`
+    + `${side === 'back' ? '往返要分别定去程和返程怎么走，' : ''}选好之后结果只包含你勾的那种交通方式。</span>`
+    + `<span class="sp"><button class="pri" type="button" data-a="pick">去选${who}车站 / 机场</button></span>`;
+  el.style.display = 'flex';
+  el.querySelector('[data-a="pick"]').onclick = () => {
+    hidePrecheck();
+    if (pickerSide === side) return;       // 面板已经开着，不用再点一次
+    togglePicker(side);
+  };
+}
+async function requestSearch() {
+  const side = missingSide();
+  if (side) {
+    /* 城市压根没有车站/机场数据时不能拦（否则这种地方永远搜不了），
+     * 但要先确认一下，不能拿「还没加载」当「没有」。 */
+    const m = await metaOf(cityOf(side));
+    if (!m.stations.length && !m.airports.length) { hidePrecheck(); return runSearch(); }
+    requestSearch._side = side;
+    showPrecheck(side);
+    $('#precheck').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    return;
+  }
+  hidePrecheck();
+  runSearch();
+}
+$('#fill').onclick = () => { if (filling) { filling = false; return; } fillMissing(); };
+$('#alltoggle').onclick = () => { showAll = !showAll; paintStats(); render(); };
+
+(async () => {
+  loadCityList();
+  paintPickBtn('from'); paintPickBtn('back');
+  try {
+    const j = await (await fetch('/api/pool')).json();
+    $('#totnum').textContent = j.total;
+    $('#tag').innerHTML = '<option value="">全部主题</option>' +
+      j.tags.map(t => `<option value="${t.tag}">${t.tag}（${t.n}）</option>`).join('');
+  } catch {}
+  // 拿到预售期与就绪状态，用于给出准确的空态说明（不触发任何查询）
+  try {
+    const j = await jget('/api/list?slim=1', { timeout: 30000, retry: 4, label: '服务正在启动，' });
+    bootMsg = '';
+    preSaleMax = j.preSaleMax || ''; railReady = j.railReady !== false; airReady = j.airReady !== false;
+    if (preSaleMax) { $('#date').max = preSaleMax; pumpDateHint(); paintBdateHint(); }
+    paintHint();
+  } catch {
+    bootMsg = '服务暂时没有响应：它可能正在启动。稍等 30 秒刷新一次就能用，不用关掉页面。';
+    paintHint();
+  }
+  const u = new URLSearchParams(location.search);
+  if (u.get('from')) { fromCityEl.value = u.get('from'); places.from.city = u.get('from'); }
+  if (u.get('date')) $('#date').value = u.get('date');
+  if (u.get('days')) { days = Number(u.get('days')); document.querySelectorAll('[data-day]').forEach(x => x.classList.toggle('on', Number(x.dataset.day) === days)); }
+  if (u.get('tag')) { $('#tag').value = u.get('tag'); tag = u.get('tag'); }
+  if (u.get('tripType') === 'round') {
+    tripType = 'round';
+    document.querySelectorAll('#trip button').forEach(x => x.classList.toggle('on', x.dataset.t === 'round'));
+    $('#backRow').style.display = 'flex';
+    // 分享链接里若带了返程设定，必须一并还原，否则「往返」只是个空壳
+    if (u.get('backCity')) { backCityEl.value = u.get('backCity'); places.back.city = u.get('backCity'); }
+    if (u.get('backDate')) $('#backDate').value = u.get('backDate');
+  }
+  // ?all=1 直接展开「显示全部」，便于分享/截图含无直达目的地的完整清单
+  if (u.get('all') === '1') showAll = true;
+  pumpDateHint();
+  openParam = u.get('open') || '';
+  if (u.get('go') === '1') {
+    (async () => {
+      await autoPick('from');
+      if (tripType === 'round') await autoPick('back');
+      requestSearch();
+    })();
+  }
+})();
+
+function pumpDateHint() {
+  if (!preSaleMax) return;
+  const v = $('#date').value;
+  if (v > preSaleMax) showErr(`12306 目前只发售 ${preSaleMax}（今天起 ${daysDiff(preSaleMax) + 1} 天）以内的车票，请把日期改到这天或更早。`);
+  else showErr('');
+}
+function daysDiff(d) {
+  const t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((new Date(d + 'T00:00:00') - t) / 864e5);
+}
+
+/* ---------- 搜索：先零成本铺满全量列表，再增量补实时 ---------- */
+async function runSearch() {
+  /* 上一次还在扫、用户又改了条件要重搜：直接把旧任务收手，不等它跑完。
+   * 已经取到的结果都在缓存里，重搜时 miss=1 会跳过它们，不会白扫两遍。 */
+  if (scanning) stopScan();
+  cancelBackPrefetch();          // 旧一轮的返程补查跟着作废，别按旧条件继续打接口
+  searched = true;
+  pumpDateHint();
+  if (preSaleMax && $('#date').value > preSaleMax) return;
+  $('#empty').style.display = 'none';
+  $('#list').style.display = '';
+  $('#tools').style.display = 'flex';
+  $('#list').className = '';
+  $('#list').innerHTML = '<div class="muted" style="padding:34px;text-align:center">正在整理目的地清单…</div>';
+  try {
+    const p = new URLSearchParams({ date: $('#date').value, days: String(days), ...tripParams() });
+    if (tag) p.set('tags', tag);
+    const j = await jget('/api/list?' + p, { timeout: 40000, retry: 2 });
+    bootMsg = '';
+    applyList(j);
+    applyOpen();
+    render();
+  } catch (e) {
+    showErr('列表加载失败：' + (e.message || e)
+      + '。如果服务刚启动，等 30 秒再点一次搜索即可。');
+    return;
+  }
+  startScan();
+}
+
+function applyList(j) {
+  items = j.items || [];
+  byName = new Map(items.map(x => [x.name, x]));
+  /* 换了一批目的地图纸，「查过没有」的账也得重开：日期/返程落点一变，
+   * 上一轮的结论（尤其是「没查到」）就不成立了，不清理的话重搜会漏掉它们。 */
+  liveTried.clear(); backTried.clear();
+  // 新一轮条件 = 新机会：上一轮的失败轮次不继承，否则换日期后这些方块永远不再补
+  for (const x of items) x._backRound = 0;
+  demo = !!j.demo; covered = j.covered; total = j.total;
+  backFiltered = Number(j.backFiltered) || 0;
+  routeFiltered = Number(j.routeFiltered) || 0;
+  railReady = j.railReady !== false; airReady = j.airReady !== false;
+  if (j.preSaleMax) { preSaleMax = j.preSaleMax; $('#date').max = preSaleMax; paintBdateHint(); }
+  paintStats();
+  paintHint();
+}
+
+function paintStats() {
+  const gone = items.filter(x => x.backNone).length;
+  const cov = items.filter(x => x.covered && !x.backNone).length;
+  const arch = items.filter(x => x.source === 'archive').length;
+  const nTr = items.filter(x => x.nTrain > 0).length;
+  const nFl = items.filter(x => x.nFlight > 0).length;
+  $('#cov').innerHTML = `有直达 <b>${cov}</b> / ${items.length}`
+    + ` <span class="muted">（高铁 ${nTr} · 航班 ${nFl}）</span>`
+    + (arch ? ` <span class="muted">· 存档 ${arch}</span>` : '')
+    + (gone ? ` <span class="muted">· 回不来 ${gone}</span>` : '');
+  // 计数用「有直达的目的地」，与列表默认展示的内容一致（用户一眼就能对上）
+  $('#cnt').textContent = scanning
+    ? `正在补齐… 已有 ${cov} 个`
+    : (showAll
+      ? `${items.length} 个候选目的地（${cov} 个有直达）`
+      : (cov > SHOW_CAP ? `前 ${SHOW_CAP} 个 · 共 ${cov} 个有直达` : `${cov} 个目的地有直达`));
+  // 只有确实存在「无直达」的目的地时才给展开入口
+  const btn = $('#alltoggle');
+  btn.style.display = (cov < items.length) ? '' : 'none';
+  btn.textContent = showAll ? '只看有直达的' : `显示全部 ${items.length} 个`;
+  return { cov, arch, nTr, nFl };
+}
+
+/* ---------- 增量扫描（SSE 边扫边出） ---------- */
+function startScan() {
+  if (es) { try { es.close(); } catch {} es = null; }
+  scanning = true;
+  scanKey = '';
+  toast('');
+  // 搜索期间按钮变成「停止」：扫描要几十秒，用户中途改了主意不该被锁在这里等
+  $('#go').disabled = false;
+  $('#go').classList.add('stop');
+  $('#go').innerHTML = '<span class="sq"></span>停止搜索';
+  $('#bar').classList.add('on');
+  const p = new URLSearchParams({ date: $('#date').value, days: String(days), miss: '1', ...tripParams() });
+  es = new EventSource('/api/scan?' + p);
+  let scannedTotal = 0;
+
+  es.addEventListener('intent', ev => {
+    const d = JSON.parse(ev.data);
+    if (d.offline) { es.close(); es = null; finishScan('离线演示：直接展示本机已抓取的真实班次，未向 12306 发任何请求。'); return; }
+    if (d.allFresh) { es.close(); es = null; finishScan('已是最新：本地缓存已覆盖全部目的地，本次未再向 12306 发请求。'); }
+  });
+  es.addEventListener('progress', ev => {
+    const d = JSON.parse(ev.data);
+    lastStats = d.stats;
+    if (d.key) scanKey = d.key;
+    if (d.total) {
+      const pct = d.phase === 'flight'
+        ? 60 + Math.round(d.done / Math.max(1, d.total) * 25)
+        : d.phase === 'flight-live'
+          ? 85 + Math.round(d.done / Math.max(1, d.total) * 15)
+          : Math.round(d.done / d.total * 60);
+      $('#barfill').style.width = pct + '%';
+      const phase = d.phase === 'flight-live' ? '飞猪航班' : d.phase === 'flight' ? '航班航线' : '高铁 12306';
+      $('#cnt').textContent = `${phase} ${d.done}/${d.total}` + (d.name ? ' · ' + d.name : '');
+    }
+  });
+  es.addEventListener('card', ev => {
+    const c = JSON.parse(ev.data);
+    mergeCard(c);
+    scannedTotal++;
+    scheduleRender();
+  });
+  // 12306 明确回答「这条线路没有直达」——记下来，展开时如实说明，而不是标成「没取到」
+  es.addEventListener('nocard', ev => {
+    const d = JSON.parse(ev.data);
+    const cur = byName.get(d.name);
+    if (cur && !cur.covered) { cur.noDirect = true; scheduleRender(); }
+  });
+  es.addEventListener('fcard', ev => {
+    const c = JSON.parse(ev.data);
+    mergeFlight(c);
+    scheduleRender();
+  });
+  es.addEventListener('fail', ev => {
+    const d = JSON.parse(ev.data);
+    showErr(d.message || '扫描中断');
+  });
+  es.addEventListener('done', ev => {
+    const d = JSON.parse(ev.data);
+    es.close(); es = null;
+    finishScan(d.allFresh ? '本地缓存已覆盖全部目的地，未向 12306 发新请求。' : null);
+  });
+  es.onerror = () => {
+    if (es && es.readyState === EventSource.CLOSED) { es = null; finishScan('连接中断，已显示的内容仍然有效。'); }
+  };
+}
+
+/**
+ * 用户中途叫停。
+ * 光 close() 掉 SSE 只是「这边不听了」，服务端那个 job 还在往下扫、还在打 12306 ——
+ * 等于用户以为停了、其实没停。所以同时发一个 /api/stop 让服务端真的收手，
+ * 已经写进缓存的结果全部保留，下次搜同一条件直接复用。
+ */
+function stopScan() {
+  if (!scanning) return;
+  if (es) { try { es.close(); } catch { /* ignore */ } es = null; }
+  if (scanKey) {
+    fetch('/api/stop?key=' + encodeURIComponent(scanKey), { keepalive: true }).catch(() => {});
+    scanKey = '';
+  }
+  finishScan('已停止。已经取到的结果都还在，改完条件直接再点一次搜索。');
+  $('#bar').classList.remove('on');
+  $('#barfill').style.width = '0';
+}
+
+function finishScan(msg) {
+  scanning = false;
+  filling = false;
+  $('#go').disabled = false;
+  $('#go').classList.remove('stop');
+  $('#go').textContent = '搜索';
+  $('#fill').textContent = '补查剩下的';
+  $('#barfill').style.width = '100%';
+  setTimeout(() => { $('#bar').classList.remove('on'); $('#barfill').style.width = '0'; }, 700);
+  paintStats();
+  paintHint();
+  /* 扫描结束了，12306 的配额还回来了：把扫描期间被打空的那些返程重新给满 4 轮机会，
+   * 再正式开工。没有这一步，扫描抢闸时失败过的方块会因「试满轮次」被永久跳过。 */
+  for (const it of items) {
+    if (it.backNone) continue;
+    if (it.back && (it.back.options || []).length) continue;
+    it._backRound = 0;
+  }
+  render();
+  if (msg) toast(msg);
+}
+
+/* 把服务端回来的一条目的地卡片合并进本地列表（不整表刷新，保留展开状态） */
+function mergeCard(c) {
+  const cur = byName.get(c.name);
+  if (!cur) return;
+  Object.assign(cur, {
+    covered: true, mode: c.mode, modes: c.modes || [c.mode],
+    best: c.options[0], options: c.options, count: c.count,
+    nTrain: c.nTrain, nFlight: c.nFlight,
+    hours: c.hours, price: c.price, depMin: c.depMin, earlyDep: c.earlyDep,
+    minPrice: (c.options || []).reduce((m, o) => (o.price != null && (m == null || o.price < m) ? o.price : m), null),
+    source: c.source || 'live', archivedDate: c.archivedDate || '', railTried: true,
+    back: c.back || cur.back || null,
+    score: scoreOf(cur, c.hours)
+  });
+  if (sortKey === 'score' && c.score != null) cur.score = c.score;
+  cur._fresh = Date.now();
+}
+/** 航班增量：把飞猪实时航班（或本地航线库骨架）合并进已有目的地（高铁与航班混排）。
+ *  同一目的地会收到两次：先骨架（source=air），后实时（source=flyai）——后者整体替换航班段。 */
+function mergeFlight(c) {
+  const cur = byName.get(c.name);
+  if (!cur) return;
+  if (!c.list || !c.list.length) {
+    // 「飞机到不了」也是一条结论：目的地无民航机场 / 没有这条直飞航线
+    if (c.flightReason) cur.flightReason = c.flightReason;
+    return;
+  }
+  const train = (cur.options || []).filter(o => o.mode === 'train');
+  const merged = train.concat(c.list).sort((a, b) => (a.hours ?? 999) - (b.hours ?? 999));
+  cur.covered = true;
+  if (c.back) cur.back = c.back;
+  cur.options = merged.slice(0, 14);
+  cur.nTrain = train.length;
+  cur.nFlight = c.list.length;
+  cur.count = train.length + c.list.length;
+  cur.modes = [...new Set(merged.map(o => o.mode))];
+  cur.mode = merged[0].mode;
+  cur.best = merged[0];
+  cur.hours = merged[0].hours;
+  cur.price = merged[0].price;
+  cur.minPrice = merged.reduce((m, o) => (o.price != null && (m == null || o.price < m) ? o.price : m), null);
+  // 实时航班到了就把来源标成 flyai（行首徽标随之变成「实时航班」）
+  if (c.source) cur.source = c.source;
+  cur.flightReason = '';
+  cur._fresh = Date.now();
+}
+function scoreOf(it, hours) {
+  const ideal = days <= 0.5 ? 1.2 : days <= 1 ? 2.2 : days <= 2 ? 3.2 : days <= 3 ? 5.5 : 8;
+  const spread = Math.max(1.4, ideal * 0.85);
+  let s = 100 * Math.exp(-((hours - ideal) ** 2) / (2 * spread ** 2));
+  s += (it.fame || 1) * 3;
+  return Math.round(s * 10) / 10;
+}
+
+/* 扫描期间高频回调：合并渲染，避免每来一条就重建 216 个 DOM 节点 */
+let renderTimer = null;
+function scheduleRender() {
+  if (renderTimer) return;
+  renderTimer = setTimeout(() => {
+    renderTimer = null;
+    paintStats();
+    render();
+  }, 320);
+}
+
+/* ---------- 状态条：只在「有话说」的时候出现，平时不占版面 ---------- */
+function paintHint() {
+  const el = $('#hint');
+  /* 启动提示优先：托管的服务可能刚从休眠里被唤醒，这时页面上任何「没有数据」都是假的，
+   * 必须先告诉用户在等服务，而不是让他以为网站坏了。 */
+  if (bootMsg) { el.className = 'hint on'; el.innerHTML = bootMsg; return; }
+  if (!searched) { el.className = 'hint'; return; }
+  const noDir = items.filter(x => x.noDirect).length;
+  let s = '';
+  if (demo) s = '离线演示模式：展示本机此前缓存的真实班次，不发起实时查询。';
+  else if (!railReady) s = '站名表未加载，高铁查询不可用。';
+  else if (transportOf() === 'flight') {
+    const nLive = items.filter(x => x.source === 'flyai').length;
+    const nStale = items.filter(x => (x.options || []).some(o => o.priceStale)).length;
+    if (nLive) s = nStale
+      ? `航班与票价为飞猪实时数据；其中 ${nStale} 个目的地显示的是上次查询到的真实票价（飞猪接口风控中）。`
+      : '航班与票价为飞猪实时在售数据，点「买机票」直达飞猪下单。';
+    else s = '飞猪接口当前触发访问风控（按出口 IP 判定），真实航线与承运航司仍照常显示；票价可点开跳飞猪查看当前价。';
+  }
+  if (noDir) s += (s ? ' ' : '') + `另有 ${noDir} 个目的地暂无直达，已默认收起。`;
+  /* 「去不了」和「回不来」是两回事，分开说：
+   * 勾了飞机就该只出现有直飞的地方，这不是 bug，是用户自己选的边界。 */
+  if (routeFiltered) {
+    const how = transportOf() === 'flight' ? '只坐飞机' : transportOf() === 'train' ? '只坐高铁' : '';
+    s += (s ? ' ' : '') + `按你选的「${how || '出行方式'}」，已剔除 ${routeFiltered} 个这一程走不通的目的地`
+      + (transportOf() === 'flight' ? '（当地没有机场或没有直飞）。' : '（当地没有车站或没有直达车）。');
+  }
+  if (backFiltered) {
+    /* 剔除得特别多，多半是因为返程只勾了一个机场/车站：说清楚，并给出「多勾几个」的出口，
+     * 否则用户只会觉得「怎么才这么几个地方」。 */
+    const ports = places.back.ports.length ? places.back.ports : places.from.ports;
+    const narrow = tripType === 'round' && ports.length === 1;
+    s += (s ? ' ' : '') + `按你选的往返方式，已剔除 ${backFiltered} 个「这一程回不来」的目的地。`
+      + (narrow ? '返程只勾了一个机场，在「返程 · 车站机场」里多勾一个会有更多地方可选。' : '');
+  }
+  /* 往返时的价格口径说清楚：返程会自动排队补，补到哪个方块就换成往返合计 */
+  if (tripType === 'round' && items.some(x => x.covered)) {
+    s += (s ? ' ' : '') + '方块上的返程班次与往返合计会自动补齐，补到哪个就换成「往返 ¥xxx」；点开任意城市可看两程的全部班次。';
+  }
+  /* 补查返程后才发现「去得回不来」的，说清楚去哪儿看，别让人以为地方凭空消失了 */
+  const gone = items.filter(x => x.backNone).length;
+  if (gone) {
+    s += (s ? ' ' : '') + `补查返程后，${gone} 个地方确认「去得回不来」已收起，点「显示全部」可看并注明原因。`;
+  }
+  if (!s) { el.className = 'hint'; el.textContent = ''; return; }
+  el.className = 'hint on';
+  el.textContent = s;
+}
+
+/* ---------- 排序 ---------- */
+function sortList() {
+  const arr = items.slice();
+  const has = (a, b, f, t) => (a[f] == null ? 1 : 0) - (b[f] == null ? 1 : 0) || t(a, b);
+  if (sortKey === 'hours') arr.sort((a, b) => has(a, b, 'hours', (x, y) => x.hours - y.hours || (x.price ?? 1e9) - (y.price ?? 1e9)));
+  else if (sortKey === 'dep') arr.sort((a, b) => has(a, b, 'depMin', (x, y) => x.depMin - y.depMin || x.hours - y.hours));
+  else if (sortKey === 'price') arr.sort((a, b) => has(a, b, 'price', (x, y) => x.price - y.price || x.hours - y.hours));
+  else if (sortKey === 'fame') arr.sort((a, b) => b.fame - a.fame || (b.score || 0) - (a.score || 0));
+  else arr.sort((a, b) => (b.covered - a.covered) || (b.score || 0) - (a.score || 0) || b.fame - a.fame);
+  return arr;
+}
+function render() {
+  if (!searched) return;
+  const all = sortList();
+  // 默认只渲染有班次的目的地（尾部空行会被当成「坏了」）；「显示全部」可展开。
+  // 例外：深链显式指定要打开的城市，即使没有班次也要渲染出来，否则链接点了没反应。
+  // backNone：返程查过、确认「去得回不来」的，同样收起 —— 这类地方点开也只有去程，
+  // 留在墙上等于让用户自己踩一遍坑（用户明确要求过「回不来的不要出现在选项里」）。
+  const arr = showAll ? all : all.filter(it => (it.covered && !it.backNone) || openSet.has(it.name));
+  // 一屏最多 50 条：216 个候选一次铺开没人看得完，且会把「有直达」的头部信息挤走。
+  // 排序已经按「有直达 → 推荐分 → 名气」排好，前 50 就是最该看的那批；
+  // 想看长尾点下面的「再展开」，或顶部「显示全部」。
+  // 例外：已展开的行（点过 / 深链指定）即使排在 50 名之外也要显示，否则点了没反应。
+  let shown = arr;
+  if (!showAll) {
+    shown = arr.slice(0, SHOW_CAP);
+    const seen = new Set(shown.map((it) => it.name));
+    for (const it of arr.slice(SHOW_CAP)) if (openSet.has(it.name) && !seen.has(it.name)) shown.push(it);
+  }
+  const list = $('#list');
+  list.className = 'wall';
+  list.innerHTML = '';
+  if (!arr.length) {
+    list.className = '';
+    list.innerHTML = scanning
+      ? '<div class="muted" style="padding:34px;text-align:center">正在从 12306 取实时班次，取到一条就会立刻出现在这里…</div>'
+      : '<div class="muted" style="padding:34px;text-align:center">这个条件下暂时没有查到有余票的直达班次，可换日期/出发地，或点「显示全部」看看还有哪些候选目的地。</div>';
+    return;
+  }
+  const frag = document.createDocumentFragment();
+  for (const it of shown) frag.appendChild(tileEl(it));
+  list.appendChild(frag);
+  if (shown.length < arr.length) {
+    const more = document.createElement('div');
+    more.className = 'more';
+    more.innerHTML = `<span class="muted">只显示了前 ${SHOW_CAP} 个（共 ${arr.length} 个）</span>`
+      + `<button class="mini" id="morebtn">再展开 ${arr.length - shown.length} 个</button>`;
+    list.appendChild(more);
+    more.querySelector('#morebtn').onclick = () => { showAll = true; paintStats(); render(); };
+  }
+  // 往返：墙一铺开就把返程一起排队查好，别让用户点开每个方块才看得到返程价。
+  // 注意 deferBackPrefetch（不是直接启动）——runSearch 里 render() 之后紧接着 startScan()，
+  // 同步启动的话本轮补查会和扫描抢 12306 的节流闸，两边都查不回来。
+  deferBackPrefetch();
+}
+
+/* ---------- 渲染单行 ---------- */
+/* ------------------------------------------------------------------ *
+ * 「为什么推荐这里」——把推荐理由写成一句能被核实的短句。
+ * 量纲只有一个：**往返路上时间 占 这趟假期清醒时间的比例**。
+ * 不写「很适合你」这类空话：每个数字都出自真实班次时长与用户自己选的天数。
+ * ------------------------------------------------------------------ */
+function idealHours(d) { return d <= 0.5 ? 1.2 : d <= 1 ? 2.2 : d <= 2 ? 3.2 : d <= 3 ? 5.5 : d <= 4 ? 8 : 11; }
+function daysLabel(d) { return d <= 0.5 ? '半天' : d <= 1 ? '1 天' : d <= 2 ? '周末 2 天' : d <= 3 ? '3 天' : d + ' 天'; }
+function fitOf(hours, d) {
+  if (!(hours > 0) || !(d > 0)) return null;
+  const ideal = idealHours(d);
+  const awake = Math.max(4, d * 15);            // 按每天 15 小时清醒时间估
+  const pct = Math.round(hours * 2 / awake * 100);
+  const rest = Math.max(0, Math.round((awake - hours * 2) * 10) / 10);
+  const r = hours / ideal;
+  if (r <= 0.55) return { cls: 'fit-far', html: `单程 <b>${hhS(hours)}</b>，往返只占这趟的 ${pct}% —— 太近了，同样几天可以去得更远` };
+  if (r >= 1.6) return { cls: 'fit-far', html: `单程 <b>${hhS(hours)}</b>，往返要占 ${pct}% —— 路上花掉不少，适合只待一地慢慢逛` };
+  return { cls: 'fit-ok', html: `单程 <b>${hhS(hours)}</b>，往返占这趟的 ${pct}%，还剩 <b>${rest}h</b> 留给当地 —— 正好是${daysLabel(d)}的甜点区` };
+}
+
+function hh(h) { return h >= 24 ? (h / 24).toFixed(1) + ' 天' : h < 1 ? Math.round(h * 60) + ' 分' : h.toFixed(1) + ' 小时'; }
+function hhS(h) { return h >= 24 ? (h / 24).toFixed(1) + '天' : h < 1 ? Math.round(h * 60) + '分' : h.toFixed(1) + 'h'; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m])); }
+function isFL(m) { return m === 'flight'; }
+function tpIcon(m) { return isFL(m) ? '✈' : '🚄'; }
+/**
+ * 往返算钱：去程最低价 + 返程最低价 = 往返合计。
+ * 只给单程价容易被当成总价（截图里就是这样），所以两程分开算、有价才合计，
+ * 拿不到就写「待查」，绝不拿单程价冒充往返价。
+ */
+function tripCost(it) {
+  const go = it.minPrice != null ? it.minPrice
+    : (it.best && it.best.price != null ? it.best.price : null);
+  const bk = (tripType === 'round') ? it.back : null;
+  const list = (bk && bk.options) || [];
+  let back = null;
+  for (const o of list) if (o.price != null && (back == null || o.price < back)) back = o.price;
+  return {
+    go, back, backKnown: list.length > 0,
+    total: (go != null && back != null) ? go + back : null
+  };
+}
+function fmtP(o) {  if (!o) return '<span class="muted">—</span>';
+  const t = o.priceText || (o.price != null ? '¥' + o.price : '');
+  if (t) {
+    // 风控期间的「历史真价」：价格是真的，但不是此刻的，必须标明查询时间，不能冒充实时
+    if (o.priceStale && o.priceAt) {
+      const mins = Math.max(1, Math.round((Date.now() - o.priceAt) / 60000));
+      const ago = mins < 60 ? mins + ' 分钟前' : Math.round(mins / 60) + ' 小时前';
+      return `${t}<span class="stale" title="飞猪接口当前触发访问风控，这是同一航线上次查到的真实票价（${new Date(o.priceAt).toLocaleString('zh-CN')}）。点开可跳飞猪看当前价。">· ${ago}查</span>`;
+    }
+    return t;
+  }
+  return `<span class="muted">${isFL(o.mode) ? '以飞猪为准' : '以 12306 为准'}</span>`;
+}
+function srcBadge(it) {
+  if (!it.covered) return '';
+  const s = it.source || 'live';
+  if (s === 'live') return '<span class="badge b-src live">实时余票</span>';
+  if (s === 'flyai') {
+    // 价格是不是此刻查到的，决定这个徽标能不能写「实时」
+    const stale = (it.options || []).some(o => o.priceStale);
+    return stale
+      ? '<span class="badge b-src cache" title="飞猪接口当前风控中，票价为此前查询到的真实价格（已标注时间）">航班·历史价</span>'
+      : '<span class="badge b-src live" title="飞猪实时在售航班与票价">实时航班</span>';
+  }
+  if (s === 'archive') return `<span class="badge b-src archive" title="同线路别的日期查得">存档 ${esc(it.archivedDate || '')}</span>`;
+  // 航班来自本地航线库（周更的静态航线网络），没有实时班次与价格，必须如实标注
+  if (s === 'air') return '<span class="badge b-src cache" title="本地航线库：每周更新的真实航线网络">航线</span>';
+  return '<span class="badge b-src cache" title="本机此前查过同一天">今日缓存</span>';
+}
+function liveBadge(it) {
+  const ms = (it.modes && it.modes.length) ? it.modes : [it.mode];
+  if (ms.length > 1) return '<span class="badge b-live">🚄✈ 高铁 + 航班</span>';
+  return `<span class="badge b-live">${tpIcon(ms[0])} ${isFL(ms[0]) ? '航班' : '高铁'}</span>`;
+}
+/** 「为什么推荐这里」：只在有实测时长时给出，没有就说没有，绝不拿空话填 */
+function fitHTML(it) {
+  const f = fitOf(it.hours, days);
+  return f ? `<div class="fit ${f.cls}">${f.html}</div>` : '';
+}
+/**
+ * 总览墙上的一个小方块。只留三样：去哪、多久/多少钱、通不通。
+ * 目的地的玩法、班次、返程、住哪儿全部收进详情弹层 —— 列表不再是 100 行长条目，
+ * 用户先看「有哪些地方能去」，再决定点开哪一个细看。
+ */
+function tileEl(it) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'tile' + (it.covered ? '' : ' nodata') + (it._fresh && Date.now() - it._fresh < 1500 ? ' fresh' : '');
+  b.dataset.name = it.name;
+  const fam = it.fame === 3 ? '<span class="fm">知名</span>' : it.fame === 1 ? '<span class="fm">小众</span>' : '';
+  let l2 = '', l3 = '', ptip = '';
+  if (it.covered) {
+    const mo = (it.modes && it.modes.length > 1) ? '🚄✈' : tpIcon(it.mode);
+    /* 最快那班常常没价（航班接口缺价），退一步用同一批班次里的最低价，并标「起」 */
+    const own = it.best && it.best.price != null ? it.best.price : null;
+    const low = own == null ? it.minPrice : null;
+    const pv = own != null ? own : low;
+    const round = tripType === 'round';
+    const cost = round ? tripCost(it) : null;
+    let p = '';
+    if (round) {
+      /* 往返别只甩一个单程价：那会被当成总价。两程都有价就给合计，缺返程就明写「往」。 */
+      if (cost.total != null) { p = `<span class="pr tot">往返 ¥${cost.total}</span>`; ptip = `（去程 ¥${cost.go} + 返程 ¥${cost.back}）`; }
+      else if (cost.go != null) { p = `<span class="pr">去 ¥${cost.go}</span>`; ptip = '（这是去程最低价；返程正在排队补，补到就自动换成往返合计）'; }
+    } else if (pv != null) {
+      p = `<span class="pr">¥${pv}${low != null ? ' 起' : ''}</span>`;
+    }
+    l2 = `<span class="mo">${mo}</span>${hhS(it.hours)}`
+      + (p || '<span class="pr muted" style="font-weight:600">查价</span>');
+    l3 = it.backNone
+      ? '<span class="dot none"></span>去得回不来'
+      : `<span class="dot"></span>${it.nTrain && it.nFlight ? `高铁 ${it.nTrain} · 航班 ${it.nFlight}` : `直达 ${it.count || (it.options || []).length} 趟`}`;
+  } else if (it.noDirect) {
+    l2 = '<span class="muted">需中转</span>'; l3 = '12306 无直达';
+  } else if (it.flightReason === 'no-destination-airport') {
+    l2 = '<span class="muted">无民航机场</span>'; l3 = '只能坐高铁';
+  } else if (it.flightReason === 'no-picked-port') {
+    l2 = '<span class="muted">仅高铁</span>'; l3 = '按勾选跳过航班';
+  } else {
+    l2 = '<span class="muted">待查</span>'; l3 = scanning ? '正在补齐…' : '点开可查';
+  }
+  b.innerHTML = `<span class="tn">${esc(it.name)}${fam}</span>`
+    + `<span class="tr2">${l2}</span><span class="ts">${l3}</span>`;
+  b.title = `${it.name}：点开看所有班次、返程与当地玩法${ptip}`;
+  b.onclick = () => openSheet(it);
+  return b;
+}
+
+/* ---------- 目的地详情弹层 ---------- */
+let sheetName = '';
+/** 返程价到手后，把墙上那个方块原地换成「往返 ¥xxx」，不用整墙重绘（也不打乱滚动位置） */
+function refreshTile(name) {
+  const it = byName.get(name);
+  if (!it) return;
+  const old = [...document.querySelectorAll('.tile')].find(el => el.dataset.name === name);
+  if (old) old.replaceWith(tileEl(it));
+}
+function closeSheet() {
+  sheetName = '';
+  $('#sheetWrap').style.display = 'none';
+  $('#sheet').innerHTML = '';
+  document.body.style.overflow = '';
+}
+function openSheet(it) {
+  if (!it) return;
+  sheetName = it.name;
+  openSet.add(it.name);
+  const el = $('#sheet');
+  const fam = it.fame === 1 ? '<span class="badge b-niche">小众</span>'
+    : it.fame === 3 ? '<span class="badge b-hot">知名</span>' : '';
+  const live = it.covered ? srcBadge(it) + liveBadge(it)
+    : (it.noDirect ? '<span class="badge b-src archive">需中转</span>'
+      : it.flightReason === 'no-destination-airport' ? '<span class="badge b-src archive">无民航机场</span>' : '');
+  const tips = (it.tips || []).filter(t => !/^建议\s*\d/.test(String(t))).map(t => {
+    const i = t.indexOf('：');
+    return i > 0
+      ? `<span><b>${esc(t.slice(0, i + 1))}</b>${esc(t.slice(i + 1))}</span>`
+      : `<span>${esc(t)}</span>`;
+  }).join('');
+  const bk = (tripType === 'round') ? it.back : null;
+  el.innerHTML = `
+    <div class="sheet-h">
+      <div>
+        <div class="sname" id="sheetName">${esc(it.name)} ${fam} ${live}</div>
+        <div class="tags">${(it.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+        <div class="blurb">${esc(it.blurb || '')}</div>
+      </div>
+      <button class="sheet-x" type="button" aria-label="关闭">✕</button>
+    </div>
+    <div class="sheet-b">
+      ${fitHTML(it)}
+      <div class="tips">${tips}</div>
+      <div class="detail"></div>
+    </div>
+    <div class="sheet-f">
+      <span>${esc(places.from.city || '苏州')} → ${esc(it.name)}${tripType === 'round' ? ' · 往返' : ' · 单程'}</span>
+      ${tripType === 'round' ? (() => {
+        const c = tripCost(it);
+        const b = it.back || {};
+        const refNote = b.overPresale ? `返程按 ${b.refDate || ''} 参考` : '两程各取最低';
+        return c.total != null
+          ? `<span class="ftot">往返合计 <b>¥${c.total}</b><i>去 ¥${c.go} + 返 ¥${c.back}，${refNote}</i></span>`
+          : `<span class="ftot pending">往返价待查${c.go != null ? `（已含去程 ¥${c.go}）` : ''}</span>`;
+      })() : ''}
+      <span class="sp"></span>
+      ${bk ? `<a class="buy ghost" href="${esc(bk.trainUrl)}" target="_blank" rel="noopener">12306 查返程</a>`
+        + `<a class="buy ghost" href="${esc(bk.airUrl)}" target="_blank" rel="noopener">飞猪查返程</a>` : ''}
+      <button class="mini" type="button" data-act="close">关闭</button>
+    </div>`;
+  $('#sheetWrap').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  el.querySelector('.sheet-x').onclick = closeSheet;
+  el.querySelector('[data-act="close"]').onclick = closeSheet;
+  paintDetail(el, it);
+  // 打开即补实时数据（每城一次）：墙上的方块只有骨架，弹层里要给出「哪一班、几点、多少钱」
+  /* 往返模式两个方向都要补：以前 liveOne 抢先命中时返程就不查了，
+   * 结果有航班的目的地一打开永远是「返程待查」。这里改成串行补齐 —— 先取去程，再取返程。 */
+  if (!demo) {
+    const needLive = !liveTried.has(it.name)
+      && (it.nFlight || (it.modes || []).includes('flight'));
+    const needBack = tripType === 'round'
+      && !(it.back && (it.back.options || []).length) && !backTried.has(it.name);
+    if (needLive || needBack) {
+      (async () => {
+        if (needLive) { liveTried.add(it.name); await liveOne(el, it); }
+        if (needBack) { backTried.add(it.name); await loadBack(el, it, null); }
+      })();
+    }
+  }
+}
+$('#sheetWrap').addEventListener('click', (e) => { if (e.target.id === 'sheetWrap') closeSheet(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sheetName) closeSheet(); });
+
+/** 购票入口必须让人一眼看出「去哪儿买」：高铁去 12306，机票去飞猪 */
+function buyLabel(o) { return isFL(o.mode) ? '去飞猪买机票' : '去 12306 买高铁票'; }
+function buyShort(o) { return isFL(o.mode) ? '飞猪' : '12306'; }
+function buyClass(o) { return 'buy ' + (isFL(o.mode) ? 'air' : 'rail'); }
+
+/** 返程价到手后刷新弹层底部那条「往返合计」（底部栏是固定可见的，合计得钉在这儿） */
+function refreshSheetFoot(it) {
+  const el = document.querySelector('#sheet .ftot');
+  if (!el) return;
+  const c = tripCost(it);
+  const b = it.back || {};
+  /* 返程还在预售期外：合计是「按参考日」算的，底部必须跟着标，否则会被当成可下单的价格 */
+  const refNote = b.overPresale ? `返程按 ${b.refDate || ''} 参考` : '两程各取最低';
+  el.outerHTML = c.total != null
+    ? `<span class="ftot">往返合计 <b>¥${c.total}</b><i>去 ¥${c.go} + 返 ¥${c.back}，${refNote}</i></span>`
+    : `<span class="ftot pending">往返价待查${c.go != null ? `（已含去程 ¥${c.go}）` : ''}</span>`;
+}
+
+/** 取一条目的地的返程班次（往返模式）。同一条并发去重，避免「墙上批量补查」与「点开弹层自动补」同时打两次。
+ *  batch=1：墙上批量补查。服务端据此只给这一批留出有限的飞猪实时价次数（缓存命中不计），
+ *  免得一屏 40 个航班目的地把当天预算吃光，用户真要单条细查时反倒没得用。 */
+const backInflight = new Map();
+function fetchBack(it, batch) {
+  if (backInflight.has(it.name)) return backInflight.get(it.name);
+  const p = (async () => {
+    const q = new URLSearchParams({ dest: it.name, date: $('#date').value, ...tripParams() });
+    if (batch) q.set('batch', '1');
+    const j = await (await fetch('/api/back?' + q)).json();
+    if (!j.ok || !j.back) throw new Error(j.error || '没取到返程班次');
+    return j.back;
+  })();
+  backInflight.set(it.name, p);
+  p.catch(() => {}).finally(() => backInflight.delete(it.name));
+  return p;
+}
+async function loadBack(row, it, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '查询中…'; }
+  try {
+    const back = await fetchBack(it, false);
+    it.back = { ...(it.back || {}), ...back };
+    backTried.add(it.name);
+    if (row) paintDetail(row, it);
+    refreshTile(it.name);          // 墙上同步显示往返合计
+    refreshSheetFoot(it);          // 底部栏合计跟着更新
+    return;
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = '重试'; }
+    toast('返程班次没取到：' + (e.message || e));
+  }
+}
+
+/* ---------- 往返：墙一出来就把返程一起查好 ----------
+ * 「返程的我必须点进去才显示出来，应该也一起查询好」—— 墙上 48 个方块就得点 48 次。
+ * 现在扫完一轮就排队自动补：补到哪个就把那个方块原地换成「往返 ¥xxx」，
+ * 用户可以边看边等，完全不用点开。顺序按当前排序（综合/票价最低优先），先补最可能被选中的那批。
+ * 并发 2：12306 那边本来就有 280ms 间隔闸，两路足够快又不会惊动限流。
+ *
+ * 2026-11-05 修的真问题：**补查必须等扫描结束**。
+ * 之前 render() 里直接启动，而 runSearch 的顺序是 render() → startScan()，
+ * 于是 39 条返程查询和 SSE 扫描同时压在 12306 上：扫描把配额占满，返程全被打成空结果，
+ * 两次失败后（_backRound≥2）永久放弃 —— 用户看到的就是「全是去程价，点开才对」。
+ * 现在扫描期间只记一个意图（backWant），finishScan 里再真正开工。 */
+let backGen = 0;
+let backQueue = [], backBusy = 0, backTarget = 3, backGone = 0, backIdleTimer = null;
+function setBackProg(text, done) {
+  const el = $('#backprog');
+  if (!text) { el.className = 'backprog'; el.innerHTML = ''; return; }
+  el.className = 'backprog on' + (done ? ' done' : '');
+  el.innerHTML = (done ? '' : '<i class="spin"></i>') + esc(text);
+}
+function cancelBackPrefetch() {
+  backGen++; backQueue = []; backTarget = 3; backGone = 0;
+  clearTimeout(backIdleTimer); backIdleTimer = null;
+  setBackProg('');
+}
+/** 推迟到下一轮事件循环再判断：让 startScan() 先把 scanning 置真，补查才知道该用几路 */
+function deferBackPrefetch() { setTimeout(() => startBackPrefetch(), 0); }
+/** 还欠返程的方块：没拿到班次的都算欠，但每块最多试 4 轮。
+ *  为什么要多轮——一次性打 39 条时，12306 偶发超时/限流，单条查就会成功；
+ *  只试一次等于把「暂时没查通」永久当成「没有返程」，方块就一直停在「去 ¥」。 */
+function pendingBackItems() {
+  const out = [], seen = new Set();
+  for (const el of document.querySelectorAll('.tile')) {
+    const n = el.dataset.name;
+    if (!n || seen.has(n)) continue;
+    seen.add(n);
+    const it = byName.get(n);
+    if (!it || !it.covered) continue;
+    if (it.backNone) continue;                              // 已确认回不来，不用再查
+    if (it.back && (it.back.options || []).length) continue;   // 已经有返程班次了
+    if ((it._backRound || 0) >= 4) continue;                   // 试满 4 轮就收手，别刷接口
+    out.push(it);
+  }
+  return out;
+}
+function tickBackProg() {
+  const tiles = [...document.querySelectorAll('.tile')];
+  if (!tiles.length) return;
+  const n = tiles.filter(t => /往返 ¥/.test(t.innerText)).length;
+  /* 「还欠几个」要把**等下一轮重试的**也算进去：只看队列的话，第一轮打完、正歇 3 秒等重试时
+   * 会显示「已补齐 26 个」，可墙上还有 6 个「去 ¥」—— 文案和画面互相打脸。 */
+  const left = backQueue.length + backBusy + pendingBackItems().length;
+  setBackProg(left
+    ? `返程补查中 ${n}/${tiles.length} · 可先看别的`
+    : `返程已补齐 ${n} 个${backGone ? ` · 收起 ${backGone} 个回不来的` : ''}`, !left);
+}
+function startBackPrefetch() {
+  if (tripType !== 'round') { cancelBackPrefetch(); return; }
+  /* 扫描进行中只放 1 路，扫描一结束升到 3 路。
+   * 「完全不动」试过：55 秒的扫描窗口里整墙都是「去 ¥」，用户以为又没生效；
+   * 「直接 3 路混跑」也试过：把扫描自己拖慢。1 路是这两者之间的平衡点。 */
+  backTarget = (scanning || filling) ? 1 : 3;
+  if (!backQueue.length && !backBusy) {
+    const q = pendingBackItems();
+    if (!q.length) return;
+    backQueue = q;
+  }
+  pumpBack();
+}
+function pumpBack() {
+  const gen = backGen;
+  clearTimeout(backIdleTimer); backIdleTimer = null;
+  while (backBusy < backTarget && backQueue.length) {
+    const it = backQueue.shift();
+    backBusy++;
+    (async () => {
+      try {
+        const back = await fetchBack(it, true);
+        if (gen !== backGen) return;
+        it.back = { ...(it.back || {}), ...back };
+        if ((back.options || []).length) {
+          it.backNone = false;
+          backTried.add(it.name);
+          it._backRound = 9;                      // 拿到了，别再排
+        } else if (back.uncertain === false) {
+          /* 查通了、确实一趟返程都没有 —— 这是结论不是失败：
+           * 墙上留着它只会让人点开才发现「去得回不来」，按用户要求收起来。 */
+          it.backNone = true; backGone++;
+          backTried.add(it.name);
+          it._backRound = 9;
+        } else {
+          it._backRound = (it._backRound || 0) + 1;   // 只是没查通，下一轮再来
+        }
+        refreshTile(it.name);
+        if (sheetName === it.name) { paintDetail($('#sheet'), it); refreshSheetFoot(it); }
+      } catch {
+        it._backRound = (it._backRound || 0) + 1;
+      }
+      backBusy--;
+      if (gen !== backGen) return;
+      tickBackProg();
+      if (!backQueue.length && !backBusy) finishBackRound(gen);
+      else pumpBack();
+    })();
+  }
+  tickBackProg();
+}
+function finishBackRound(gen) {
+  /* 还有没查通的（各轮失败过的）→ 歇 3 秒补一轮，最多 4 轮。
+   * 一口气打 39 条时 12306 偶发超时，全放弃就会让那批方块永远停在「去 ¥」。 */
+  const again = pendingBackItems();
+  if (again.length) {
+    backQueue = again;
+    backIdleTimer = setTimeout(() => {
+      if (gen !== backGen) return;
+      backTarget = (scanning || filling) ? 1 : 3;
+      pumpBack();
+    }, 3000);
+    return;
+  }
+  if (backGone) { paintStats(); paintHint(); render(); }   // 把「回不来」的方块从默认视图收掉
+  tickBackProg();
+  backIdleTimer = setTimeout(() => { if (gen === backGen) setBackProg(''); }, 7000);
+}
+
+function paintDetail(d, it) {
+  const box = d.querySelector('.detail');
+  /* 弹层高度有限：只列最快的 5 趟，把「返程 + 行程 + 当地」留在首屏可达的位置。
+   * 要查全部班次，点任一班次的购票入口去 12306 / 飞猪，那边是完整列表。 */
+  const opts = (it.options || []).slice(0, 5);
+  const best = it.best || opts[0] || null;
+  const mainBuy = (it.covered && best && best.jumpUrl)
+    ? `<a class="${buyClass(best)}" href="${esc(best.jumpUrl)}" target="_blank" rel="noopener">${buyLabel(best)}</a>` : '';
+  const liveBtn = !it.covered ? '<button data-act="live">查这一条</button>' : '';
+  const stayBtn = it.covered ? '<button data-act="stay">住哪儿 · 玩什么</button>' : '';
+  const acts = `<div class="acts">${mainBuy}${stayBtn}${liveBtn}</div>`;
+  // 往返：把「从这儿怎么回去」摆出来 —— 有真实返程班次就列班次，没有就摆查询入口
+  const bk = (tripType === 'round') ? it.back : null;
+  const bkOpts = (bk && bk.options) || [];
+  const bkRows = bkOpts.slice(0, 4).map(o => `
+      <div class="tr${isFL(o.mode) ? ' tr-fl' : ''}">
+        <div class="trh"><span class="tno">${tpIcon(o.mode)} ${esc(o.no || '')}</span>
+          <span class="tto">${esc(o.from || '')}${o.fromPort ? `（${esc(o.fromPort)}）` : ''} ${esc(o.dep || '')} → ${esc(o.to || '')}${o.toPort ? `（${esc(o.toPort)}）` : ''} ${esc(o.arr || '')}</span>
+          <span class="dur muted">${hhS(o.hours)}</span>
+          ${o.alt ? `<span class="tto muted">· ${esc(o.alt)}</span>` : ''}
+        </div>
+        <div class="opts"><div class="opt">
+          <span class="tm">${isFL(o.mode)
+            ? (o.price != null ? `经济舱 · 含税${o.priceStale ? '（此前查询）' : ''}` : '经济舱 · 票价以飞猪为准')
+            : esc(o.seat || '—')}${
+            !isFL(o.mode) && o.qty ? `<span class="qty${o.qty === '无' ? ' none' : ''}">余 ${esc(o.qty)}</span>`
+            : (!isFL(o.mode) && o.archived ? '<span class="qty none">余票见当日</span>' : '')}</span>
+          <span class="du">${esc(o.date || '')}</span>
+          <span class="pr">${fmtP(o)}</span>
+          ${o.jumpUrl ? `<a class="${buyClass(o)}" href="${esc(o.jumpUrl)}" target="_blank" rel="noopener">${buyShort(o)}购票</a>` : '<span></span>'}
+        </div></div>
+      </div>`).join('');
+  const bkMeta = bkOpts.length
+    ? `<span class="bkmeta">${[bk.nTrain ? `高铁 ${bk.nTrain} 趟` : '', bk.nFlight ? `直飞 ${bk.nFlight} 条` : ''].filter(Boolean).join(' · ')}</span>`
+    : '';
+  /* 往返合计：单看「去程 ¥504」会以为是全程花费，两程分开列再加总才不误导 */
+  const cost = tripCost(it);
+  const costLine = (() => {
+    const seg = [];
+    seg.push(cost.go != null ? `去程 <b>¥${cost.go}</b>` : '去程 <b class="muted">待查</b>');
+    seg.push(cost.back != null ? `返程 <b>¥${cost.back}</b>`
+      : `返程 <b class="muted">${cost.backKnown ? '无报价' : '待查'}</b>`);
+    const tail = cost.total != null
+      ? `<span class="eq">=</span> 往返 <b class="tot">¥${cost.total}</b><span class="tip">${bk && bk.overPresale ? `参考价（按 ${esc(bk.refDate)} 的班次算）` : '两程最低价合计'}</span>`
+      : `<span class="tip">${cost.backKnown ? '返程班次没有可用的票价，可点 12306 / 飞猪查当日报价' : '补到返程价后这里会自动算出往返合计'}</span>`;
+    return `<div class="sumline">${seg.join(' <span class="eq">+</span> ')} ${tail}</div>`;
+  })();
+  /* 返程日期超出 12306 预售期：班次一律取「当前最远可售日」，必须显式说明，否则用户以为查错了日期。
+     超预售时仍然给班次（不是「待查」）—— 开售后时刻表基本不变，先看时间与价位再定行程是够用的。 */
+  const bkRefLine = (bk && bk.overPresale) ? `<div class="bkref">
+      <span>⚠</span><span><b>${esc(bk.date || '')}</b> 还没开售（12306 现在最远只到 <b>${esc(bk.refDate || '')}</b>）。
+      ${bkOpts.length
+        ? `下面列的是 <b>${esc(bk.refDate || '')}</b> 的车次与票价，开售后同班次基本不变。`
+        : `想先看时刻，可以把返程日期临时改到 ${esc(bk.refDate || '')}。`}
+      <b>${esc(bk.openDate || '')}</b> 起可查当天的票。</span></div>` : '';
+  /* 勾了具体到达站、但那一站没有直达车：退到同城其他站的班次（照样能回），说明下车点变了 */
+  const bkLooseLine = (bk && bk.stationLoose) ? `<div class="bkref info">
+      <span>ℹ</span><span>没有直达 <b>${esc((bk.stations || []).join(' / ') || '')}</b> 的车，下面是到
+      <b>${esc(bk.to || '')}</b> 其他车站的班次 —— 一样能回，只是下车点不同。</span></div>` : '';
+  /* 勾的落点机场没有直飞（苏州这种没机场的城市，飞猪按就近无锡落地）：把真班次摆出来并说清落点 */
+  const bkAirLine = (bk && bk.airportLoose) ? `<div class="bkref info">
+      <span>ℹ</span><span>你勾的落点机场没有直达航班，飞猪实际卖的是到
+      <b>${esc(bk.airportNote || '就近机场')}</b> 的票（${esc(bk.to || '')}没有机场，就近落地）。</span></div>` : '';
+  /* 往返模式**永远**给返程区：返程还没查时也要能看到「去程多少钱 + 返程待查」，
+   * 而不是等班次回来才出现一块合计，否则用户以为总价就是那个单程价。 */
+  const backRow = tripType === 'round' ? `<div class="backleg">
+      <div class="bkline"><span class="bklab">返程</span>
+        <span class="bkpt">${esc((bk && bk.from) || it.name)} → ${esc((bk && (bk.toLabel || bk.to)) || places.back.city || places.from.city || '')}</span>
+        ${bk ? `<span class="bkdt">${esc(bk.date || '')}</span>` : ''}
+        ${bkMeta}
+        ${bk ? `<a class="bklnk rail" href="${esc(bk.trainUrl)}" target="_blank" rel="noopener">12306</a>`
+          + `<a class="bklnk air" href="${esc(bk.airUrl)}" target="_blank" rel="noopener">飞猪</a>` : ''}
+      </div>
+      ${bkRefLine}
+      ${bkLooseLine}
+      ${bkAirLine}
+      ${bkOpts.length
+        ? `<div class="bkrows">${bkRows}</div>`
+        : `<div class="bkempty"><span>${esc((bk && bk.note) || '还没查返程班次。')}</span>`
+          + `<button class="mini" data-act="back">查返程班次</button></div>`}
+      ${costLine}
+    </div>` : '';
+
+  if (!it.covered) {
+    box.innerHTML = `<div class="note">`
+      + (it.noDirect
+        ? `12306 已确认：目前没有从出发地直达 <b>${esc(it.name)}</b> 的车次，通常需要在就近枢纽换乘一次。`
+        : it.flightReason === 'no-picked-port'
+          ? `你只勾选了车站，所以 <b>${esc(it.name)}</b> 只查高铁、不查航班。要飞就把机场也勾上。`
+        : it.flightReason === 'no-destination-airport'
+          ? `<b>${esc(it.name)}</b> 没有民航机场，坐高铁去更合适。`
+          : `还没取到 <b>${esc(it.name)}</b> 的实时班次。`
+            + (scanning ? '正在逐条补齐，稍等一下。' : '点「查这一条」可单独向 12306 查它的直达车次。'))
+      + `</div>` + backRow + acts;
+  } else {
+    const trs = opts.map(o => `
+      <div class="tr${isFL(o.mode) ? ' tr-fl' : ''}">
+        <div class="trh"><span class="tno">${tpIcon(o.mode)} ${esc(o.no)}</span>
+          <span class="tto">${esc(o.from)}${o.fromPort ? `（${esc(o.fromPort)}）` : ''} ${esc(o.dep)} → ${esc(o.to)}${o.toPort ? `（${esc(o.toPort)}）` : ''} ${esc(o.arr)}</span>
+          <span class="dur muted">${hhS(o.hours)}</span>
+          ${o.km ? `<span class="dur muted">${o.km} km</span>` : ''}
+          <span class="fast">${esc(o.mode === 'flight' ? (o.airlines || []).slice(0, 3).join('、') : (o.kind || ''))}</span>
+          ${o.alt ? `<span class="tto muted">· ${esc(o.alt)}</span>` : ''}
+        </div>
+        <div class="opts"><div class="opt">
+          <span class="tm">${isFL(o.mode)
+            ? (o.price != null ? `经济舱 · 含税${o.priceStale ? '（此前查询）' : ''}` : '经济舱 · 票价以飞猪为准')
+            : esc(o.seat || '—')}${
+            !isFL(o.mode) && o.qty ? `<span class="qty${o.qty === '无' ? ' none' : ''}">余 ${esc(o.qty)}</span>`
+            : (!isFL(o.mode) && o.archived ? '<span class="qty none">余票见当日</span>' : '')}</span>
+          <span class="du">${esc(o.date || '')}</span>
+          <span class="pr">${fmtP(o)}</span>
+          ${o.jumpUrl ? `<a class="${buyClass(o)}" href="${esc(o.jumpUrl)}" target="_blank" rel="noopener">${buyShort(o)}购票</a>` : '<span></span>'}
+        </div></div>
+      </div>`).join('');
+    const parts = [];
+    if (it.nTrain) parts.push(`高铁 <b>${it.nTrain}</b> 趟`);
+    if (it.nFlight) parts.push(`直飞 <b>${it.nFlight}</b> 条`);
+    const mix = parts.length > 1 ? parts.join(' · ') : (parts[0] || `共 ${it.count || opts.length} 趟`);
+    const hasStalePrice = opts.some(o => isFL(o.mode) && o.price != null);
+    const srcNote = it.source === 'archive'
+      ? `数据来自 <b>${esc(it.archivedDate)}</b> 的查询（时刻表稳定，<b>余票需以当日为准</b>）。`
+      : it.source === 'cache' ? '数据来自本机此前对同一天的查询。'
+      : it.source === 'air'
+        ? (hasStalePrice
+          ? '直飞航线来自本地航线库；票价是本机此前查到的<b>真实成交价</b>（标注了查询时间），点开可在飞猪看当前价。'
+          : '直飞航线来自本地航线库（真实航线网络）；飞猪接口当前风控中，票价请点开查看当前价。')
+      : '数据为本次实时查得。';
+    // 12306 对「本市多站」的目的地会返回同城站结果；这是正常行为，但要说明，否则会被误读成串号
+    const core = String(it.name).replace(/(北|东|南|西)$/, '').slice(0, 2);
+    const offCity = [...new Set(opts.filter(o => o.mode === 'train').map(o => o.to).filter(t => t && !String(t).includes(core)))];
+    const cityNote = offCity.length
+      ? `<br>部分班次的到达站为同城站（${esc(offCity.slice(0, 4).join('、'))}），12306 对同城车站会自动合并返回。`
+      : '';
+    box.innerHTML = `${trs}<div class="note">共 ${mix}，按耗时升序显示前 ${opts.length} 条。${srcNote}${cityNote}</div>` + backRow + acts;
+  }
+
+  const planEl = document.createElement('div');
+  planEl.className = 'plan';
+  box.appendChild(planEl);
+  paintPlan(planEl, it);
+  const det = document.createElement('div');
+  det.className = 'det';
+  box.appendChild(det);
+
+  box.querySelectorAll('[data-act]').forEach(b => b.onclick = async ev => {
+    ev.stopPropagation();
+    if (b.dataset.act === 'live') return liveOne(d, it, b);
+    if (b.dataset.act === 'back') return loadBack(d, it, b);
+    if (det.classList.contains('on')) { det.classList.remove('on'); return; }
+    det.classList.add('on');
+    det.innerHTML = '<div class="muted">正在整理当地信息…</div>';
+    try {
+      const p = new URLSearchParams({ name: it.name, date: $('#date').value, days: String(days) });
+      const j = await (await fetch('/api/dest?' + p)).json();
+      let h = '';
+      const poiRows = (arr, cls) => arr.map(x =>
+        `<div class="item poi"><span class="poinm${cls}">${esc(x.name)}</span>`
+        + `<a class="polink" href="${esc(x.jumpUrl)}" target="_blank" rel="noopener">${cls ? '看餐厅' : '看门票'}</a></div>`).join('');
+      if (j.pois && j.pois.length) {
+        h += '<h4>玩什么</h4>' + poiRows(j.pois, '');
+      }
+      if (j.foods && j.foods.length) {
+        h += '<h4 style="margin-top:10px">吃什么</h4>' + poiRows(j.foods, ' eat');
+      }
+      if (j.hotels && j.hotels.length) {
+        h += '<h4 style="margin-top:12px">住哪儿</h4>' + j.hotels.map(x =>
+          `<div class="item stay"><span class="staynm">${esc(x.name)}</span>`
+          + `<span class="stayhint">${esc(x.hint)}</span></div>`).join('');
+        h += `<div class="stayacts"><a class="buy air" href="${esc(j.links.hotel)}" target="_blank" rel="noopener">去飞猪找酒店</a></div>`;
+      }
+      det.innerHTML = h || '<div class="muted">这个地方还没有策展内容。</div>';
+    } catch { det.innerHTML = '<div class="muted">查询失败，请稍后再试</div>'; }
+  });
+}
+
+/* ---------- 行程安排：百炼应用 / 本地模型 / 本地规则（三层降级） ---------- */
+async function paintPlan(el, it) {
+  const key = [it.name, places.from.city, $('#date').value, days, transportOf(), tripType].join('|');
+  const head = `<div class="ailab">这几天怎么玩</div>`;
+  if (planCache.has(key)) { el.innerHTML = head + planBody(planCache.get(key)); return; }
+  el.innerHTML = head + '<div class="pl muted">正在根据班次与当地素材整理…</div>';
+  try {
+    const p = new URLSearchParams({ dest: it.name, date: $('#date').value, days: String(days), ...tripParams() });
+    const j = await (await fetch('/api/plan?' + p)).json();
+    const card = { lines: j && j.lines ? j.lines : null, plan: (j && j.plan) || '', engine: (j && j.engine) || '' };
+    if (!card.lines && !card.plan) { el.innerHTML = head + '<div class="pl muted">暂时无法整理，请稍后重试。</div>'; return; }
+    planCache.set(key, card);
+    el.innerHTML = head + planBody(card);
+  } catch (e) {
+    el.innerHTML = head + '<div class="pl muted">生成失败：' + esc(e.message) + '</div>';
+  }
+}
+function planBody(card) {
+  let h = planLines(card.lines, card.plan);
+  if (card.engine) h += `<div class="engine">由 ${esc(card.engine)} 生成</div>`;
+  return h;
+}
+function planLines(lines, planText) {
+  if (lines && lines.length) {
+    return lines.map(l => `<div class="pl"><span class="k">${esc(l.k)}</span><span>${esc(l.t)}${
+      l.url ? `<a href="${esc(l.url)}" target="_blank" rel="noopener">${l.url.includes('hotel.') ? '找酒店' : l.url.includes('sjipiao') ? '买机票' : '看门票'}</a>` : ''}</span></div>`).join('');
+  }
+  // 百炼应用只回纯文本（「· 」短行），这里按行还原
+  return String(planText || '').split('\n').map(x => x.trim()).filter(Boolean).map(x =>
+    `<div class="pl"><span class="k">·</span><span>${esc(x.replace(/^[·•\-]\s*/, ''))}</span></div>`).join('');
+}
+
+/* ---------- 单点实时补查 ---------- */
+async function liveOne(d, it, btn) {
+  const note = d.querySelector('.note');
+  if (btn) { btn.disabled = true; btn.textContent = '查询中…'; }
+  if (note) note.textContent = transportOf() === 'flight'
+    ? `正在向飞猪取 ${it.name} 的实时航班与票价…`
+    : `正在向 12306 取 ${it.name} 的直达班次（含同城站补查）…`;
+  try {
+    const p = new URLSearchParams({ dest: it.name, date: $('#date').value, days: String(days), ...tripParams() });
+    const j = await (await fetch('/api/live?' + p)).json();
+    if (j.ok && j.card) {
+      mergeCard({ ...j.card, options: j.card.options, source: j.card.source || 'live' });
+      it._fresh = Date.now();
+      openSet.add(it.name);
+      showErr(''); paintStats(); render();
+      /* 弹层正开着这一条：把详情原地刷新（班次从骨架变成真实车次/航班） */
+      if (sheetName === it.name) paintDetail($('#sheet'), it);
+    } else {
+      if (j.noDirect) it.noDirect = true;
+      if (note) note.textContent = j.error || '该目的地没有直达班次。';
+      if (j.noDirect) { openSet.add(it.name); paintStats(); render(); if (sheetName === it.name) paintDetail($('#sheet'), it); }
+      else if (btn) { btn.disabled = false; btn.textContent = '查这一条'; }
+    }
+  } catch (e) {
+    if (note) note.textContent = '查询失败：' + e.message;
+    if (btn) { btn.disabled = false; btn.textContent = '查这一条'; }
+  }
+}
+
+/* ---------- 补查剩下的：复用同一套增量扫描 ---------- */
+function fillMissing() {
+  if (scanning) { filling = false; return; }
+  if (!searched) return runSearch();
+  filling = true;
+  $('#fill').textContent = '停止补查';
+  startScan();
+}
+</script>
+</body>
+</html>

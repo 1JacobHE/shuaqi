@@ -1,0 +1,16 @@
+{
+  "name": "flytrip-finder",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "耍起 · 按时间预算发现目的地（高铁走 12306 公开接口，航班走本地航线库，购票跳转 12306 / 飞猪）",
+  "scripts": {
+    "start": "node server.mjs",
+    "demo": "set DEMO=1&& node server.mjs",
+    "warm": "node scripts/warm-rail.mjs",
+    "build-data": "python scripts/build_data.py"
+  },
+  "dependencies": {
+    "@fly-ai/flyai-cli": "^1.0.16"
+  }
+}
