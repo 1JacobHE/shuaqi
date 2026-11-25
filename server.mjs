@@ -2096,7 +2096,9 @@ async function handlePlan(req, res, q) {
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon'
+  '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
+  '.mp4': 'video/mp4', '.webm': 'video/webm', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+  '.txt': 'text/plain; charset=utf-8', '.woff2': 'font/woff2'
 };
 
 const server = http.createServer(async (req, res) => {
@@ -2267,12 +2269,46 @@ const server = http.createServer(async (req, res) => {
     }
     let p = u.pathname === '/' ? '/index.html' : u.pathname;
     const file = path.join(PUBLIC, p);
-    if (!file.startsWith(PUBLIC) || !fs.existsSync(file)) {
+    if (!file.startsWith(PUBLIC) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('404');
     }
+    const st = fs.statSync(file);
+    const ext = path.extname(file).toLowerCase();
+    const mime = MIME[ext] || 'application/octet-stream';
+    const textLike = /^(text\/|application\/(javascript|json)|image\/svg)/.test(mime);
+
+    /* 视频等二进制：支持 Range 才能拖动进度条；大文件一律走流式，不整个读进内存再说 */
+    const range = req.headers.range;
+    if (range || !textLike) {
+      const head = {
+        'Content-Type': mime,
+        'Accept-Ranges': 'bytes',
+        'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=86400'
+      };
+      let start = 0, end = st.size - 1, code = 200;
+      if (range) {
+        const m = /^bytes=(\d*)-(\d*)$/.exec(range.trim());
+        if (m) {
+          if (m[1]) { start = parseInt(m[1], 10); if (m[2]) end = Math.min(parseInt(m[2], 10), st.size - 1); }
+          else if (m[2]) { start = Math.max(st.size - parseInt(m[2], 10), 0); }
+          if (start > end || start >= st.size) {
+            res.writeHead(416, { 'Content-Range': `bytes */${st.size}` });
+            return res.end();
+          }
+          code = 206;
+          head['Content-Range'] = `bytes ${start}-${end}/${st.size}`;
+        }
+        /* 解析不了的 Range 就退回整文件 200 */
+      }
+      head['Content-Length'] = end - start + 1;
+      res.writeHead(code, head);
+      if (req.method === 'HEAD') return res.end();
+      return fs.createReadStream(file, { start, end }).pipe(res);
+    }
+
     const buf = fs.readFileSync(file);
-    const head = { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' };
+    const head = { 'Content-Type': mime };
     if ((req.headers['accept-encoding'] || '').includes('gzip') && buf.length > 2048) {
       head['Content-Encoding'] = 'gzip';
       res.writeHead(200, head);
