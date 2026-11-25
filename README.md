@@ -27,9 +27,19 @@
 整段都是**线上站点真实运行**的画面，没有任何后期合成的假数据：填条件 → 一次搜完 100 个候选目的地 →
 方块上的价格从「去 ¥」逐个变成「往返 ¥」→ 点开昆明看去返两程明细 → 百炼 qwen-plus 生成「这几天怎么玩」。
 
-<https://github.com/1JacobHE/shuaqi/blob/main/demo/shuaqi-demo.mp4>
+<https://shuaqi.app.workbuddy.host/demo/shuaqi-demo.mp4?sharecode=SJLVSCDTPE>
 
-本地文件：`demo/shuaqi-demo.mp4`（1920×1080 / 25fps / 57s / 23MB）
+本地文件：`demo/shuaqi-demo.mp4`（1920×1080 / 25fps / 57s / 30MB，母版）
+
+站点上那份额外的 `public/demo/shuaqi-demo.mp4` 是同一个片子的网页版（CRF 23，12MB），
+服务端对 `video/mp4` 走 `Range` 流式响应，所以网页里能直接拖进度条。该文件不进仓库（见 `.gitignore`），
+本地部署前从母版压一份过去即可：
+
+```bash
+ffmpeg -i demo/shuaqi-demo.mp4 -c:v libx264 -preset slow -crf 23 -maxrate 2000k \
+  -bufsize 4000k -tune stillimage -c:a aac -b:a 128k -movflags +faststart \
+  public/demo/shuaqi-demo.mp4
+```
 
 ## 输入只有三件事（v1.1）
 
